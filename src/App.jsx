@@ -1,16 +1,18 @@
 import { useState } from 'react'
-import HomePage from './Pages/HomePage'
+import { BrowserRouter as Router, Route, Switch} from 'react-router-dom'
+import HomePage from './Pages/HomePage/HomePage'
 
 
 function App() {
  
 
   return (
-    <>
-      <HomePage />
-      
-      
-    </>
+    <Router>
+      <Switch>
+        <Route path='/' element={<HomePage />}></Route>
+        <Route path='/' element={''}></Route>
+      </Switch>
+    </Router>
   )
 }
 
