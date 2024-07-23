@@ -1,6 +1,6 @@
 import React from 'react'
 import './HomePage.css'
-import logo from '../../assets/logo-01.png'
+import logo from '../../assets/images/logo-01.png'
 import { useNavigate } from 'react-router-dom'
 
 const HomePage = () => {

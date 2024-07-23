@@ -52,7 +52,7 @@
   
   .background-img {
     flex: 1;
-    background: url('./../../assets/background-image.jpg') no-repeat center center;
+    background: url('./../../assets/images/background-image.jpg') no-repeat center center;
     background-size: cover;
   }
   
