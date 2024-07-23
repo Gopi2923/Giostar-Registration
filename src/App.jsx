@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { BrowserRouter as Router, Route, Switch} from 'react-router-dom'
-import HomePage from './Pages/HomePage/HomePage'
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import HomePage from './Pages/HomePage/HomePage';
+import RegistrationPage from './Pages/RegistrationPage/RegistrationPage';
 
 
 function App() {
@@ -8,10 +9,10 @@ function App() {
 
   return (
     <Router>
-      <Switch>
+      <Routes>
         <Route path='/' element={<HomePage />}></Route>
-        <Route path='/' element={''}></Route>
-      </Switch>
+        <Route path='/register' element={<RegistrationPage />}></Route>
+      </Routes>
     </Router>
   )
 }
