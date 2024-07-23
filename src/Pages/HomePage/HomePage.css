@@ -1,19 +1,40 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700&family=Poppins:wght@400&display=swap');
+
 .home-page {
+    display: flex;
+    height: 100vh;
+    /* background-color: #f0f0f0; */
+  }
+  
+  .content {
+    flex: 1;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    background-color: #f0f0f0;
   }
   
   .logo {
-    width: 200px;
+    width: 400px;
     height: auto;
-    margin-bottom: 20px;
+    margin-bottom: 40px;
   }
   
-  .register-button {
+  .title {
+    font-family: 'Nunito', sans-serif;
+    font-size: 2.5em;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .subtitle {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.2em;
+    color: #666;
+    margin-bottom: 30px;
+  }
+  
+  .register-btn {
     padding: 10px 20px;
     font-size: 16px;
     background-color: #007bff;
@@ -23,7 +44,13 @@
     cursor: pointer;
   }
   
-  .register-button:hover {
+  .register-btn:hover {
     background-color: #0056b3;
+  }
+  
+  .background-img {
+    flex: 1;
+    background: url('./../../assets/background-image.jpg') no-repeat center center;
+    background-size: cover;
   }
   
