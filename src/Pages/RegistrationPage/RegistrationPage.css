@@ -73,3 +73,21 @@ button[type="submit"] {
 button[type="submit"]:hover {
   background-color: #0056b3;
 }
+
+.qr-code-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.qr-code-card {
+  border-radius: 10px;
+  text-align: center;
+  max-width: 350px;
+  width: 100%;
+  background-color: #fff;
+}
+
+.qr-code-card h2 {
+  margin: 10px 0;
+}
