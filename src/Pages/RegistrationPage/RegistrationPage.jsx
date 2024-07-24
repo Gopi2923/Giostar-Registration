@@ -34,6 +34,7 @@ const RegistrationPage = () => {
   const handleSumbit = async (e) => {
     e.preventDefault();
     try {
+      // First API call to create the registration and get the order_id
       const formResponse = await axios.post('https://giostar.onrender.com/registration/add', formData);
       const orderId = formResponse.data.patientId
       console.log('Response:', formResponse.data)
@@ -59,6 +60,7 @@ const RegistrationPage = () => {
         formData2.append(key, transactionData[key]);
       }
 
+      // Second API call to create the transaction with the received order_id
       const transactionResponse = await axios.post('https://www.switchpay.in/api/createTransaction', formData2, {
         headers: {
           'Authorization': `Bearer ${token}`,
