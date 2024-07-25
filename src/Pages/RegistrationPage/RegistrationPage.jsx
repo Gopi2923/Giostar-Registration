@@ -8,7 +8,7 @@ const RegistrationPage = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     middleName: '',
-    lastName: '',
+    lastname: '',
     age: '',
     gender: '',
     email: '',
@@ -114,7 +114,7 @@ const RegistrationPage = () => {
                 <h1>Payment Confirmed</h1>
                 <div className="patient-details">
                   {responseData.patientId && <p><strong>Patient ID:</strong> {responseData.patientId}</p> }
-                  {responseData.firstName && <p><strong>Name:</strong> {responseData.firstName} {responseData.middleName || ''} {responseData.lastName || ''}</p> }
+                  {responseData.firstName && <p><strong>Name:</strong> {responseData.firstName} {responseData.middleName || ''} {responseData.lastname || ''}</p> }
                   {responseData.age && <p><strong>Age:</strong> {responseData.age}</p> }
                   {responseData.gender && <p><strong>Gender:</strong> {responseData.gender}</p> }
                   {responseData.email && <p><strong>Email:</strong> {responseData.email}</p> }
@@ -145,7 +145,7 @@ const RegistrationPage = () => {
               </div>
               <div>
                 <label htmlFor="lastName">Last Name <span className="required">*</span></label>
-                <input type="text" id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} required />
+                <input type="text" id="lastname" name="lastname" value={formData.lastname} onChange={handleChange} required />
               </div>
             </div>
             <div className="form-group">
@@ -182,7 +182,7 @@ const RegistrationPage = () => {
             </div>
             <div className="form-group">
               <label htmlFor="category">Pincode</label>
-              <input type="number" id="category" name="pincode"  value={formData.pincode} onChange={handleChange}/>
+              <input type="number" id="pincode" name="pincode"  value={formData.pincode} onChange={handleChange}/>
             </div>
             <div className="form-group">
               <label htmlFor="date">Date of Registration <span className="required">*</span></label>
