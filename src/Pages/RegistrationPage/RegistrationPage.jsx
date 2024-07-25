@@ -11,7 +11,7 @@ const RegistrationPage = () => {
     age: '',
     gender: '',
     email: '',
-    mobileNumber: '',
+    mobile_number: '',
     address: '',
     city: '',
     state: '',
@@ -22,7 +22,7 @@ const RegistrationPage = () => {
   });
 
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [orderId, setOrderId] = useState('');
+  // const [orderId, setOrderId] = useState('');
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
   const [responseData, setResponseData] = useState(null);
 
@@ -34,7 +34,7 @@ const RegistrationPage = () => {
         ...formData,
         [name]: cleanedValue,
       });
-    } else if (name === 'mobileNumber') {
+    } else if (name === 'mobile_number') {
       const cleanedValue = value.replace(/\D/g, ''); // Remove non-digit characters
       if (cleanedValue.length <= 10) {
         setFormData({
@@ -69,6 +69,11 @@ const RegistrationPage = () => {
     }
   };
 
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
   return (
     <div className='registration-container'>
     <div className="registration-form">
@@ -95,12 +100,12 @@ const RegistrationPage = () => {
                   <p><strong>Age:</strong> {responseData.age}</p>
                   <p><strong>Gender:</strong> {responseData.gender}</p>
                   <p><strong>Email:</strong> {responseData.email}</p>
-                  <p><strong>Mobile Number:</strong> {responseData.mobileNumber}</p>
+                  <p><strong>Mobile Number:</strong> {responseData.mobile_number}</p>
                   <p><strong>Address:</strong> {responseData.address}</p>
                   <p><strong>City:</strong> {responseData.city}</p>
                   <p><strong>State:</strong> {responseData.state}</p>
                   <p><strong>Category:</strong> {responseData.category}</p>
-                  <p><strong>Date of Registration:</strong> {responseData.date}</p>
+                  <p><strong>Date of Registration:</strong> {formatDate(responseData.createdAt)}</p>
                   <p><strong>Reason for Visit:</strong> {responseData.reason}</p>
                   <p><strong>Type of Visit:</strong> {responseData.typeOfVisit}</p>
                 </div>
@@ -143,7 +148,7 @@ const RegistrationPage = () => {
             </div>
             <div className="form-group">
               <label htmlFor="phone">Mobile Number</label>
-              <input type="tel" id="phone" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} pattern="\d{10}" title="Please enter 10 digits" required />
+              <input type="tel" id="phone" name="mobile_number" value={formData.mobile_number} onChange={handleChange} pattern="\d{10}" title="Please enter 10 digits" required />
             </div>
             <div className="form-group">
               <label htmlFor="address">Address</label>
@@ -163,7 +168,7 @@ const RegistrationPage = () => {
             </div>
             <div className="form-group">
               <label htmlFor="date">Date of Registration</label>
-              <input type="date" id="date" name="date" value={formData.date} onChange={handleChange} required />
+              <input type="date" id="date" name="date" value={formData.createdAt} onChange={handleChange} required />
             </div>
             <div className="form-group">
               <label htmlFor="reason">Reason for Visit</label>
