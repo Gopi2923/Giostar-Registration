@@ -121,7 +121,7 @@ const RegistrationPage = () => {
           <form onSubmit={handleSubmit}>
             <div className="form-group name-group">
               <div>
-                <label htmlFor="firstName">First Name</label>
+                <label htmlFor="firstName">First Name <span className="required">*</span></label>
                 <input type="text" id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} required />
               </div>
               <div>
@@ -129,16 +129,16 @@ const RegistrationPage = () => {
                 <input type="text" id="middleName" name="middleName" value={formData.middleName} onChange={handleChange} />
               </div>
               <div>
-                <label htmlFor="lastName">Last Name</label>
+                <label htmlFor="lastName">Last Name <span className="required">*</span></label>
                 <input type="text" id="lastName" name="lastName" value={formData.lastName} onChange={handleChange} required />
               </div>
             </div>
             <div className="form-group">
-              <label htmlFor="age">Age</label>
+              <label htmlFor="age">Age <span className="required">*</span></label>
               <input type="number" id="age" name="age" value={formData.age} onChange={handleChange} required />
             </div>
             <div className="form-group">
-              <label htmlFor="gender">Gender</label>
+              <label htmlFor="gender">Gender <span className="required">*</span></label>
               <select id="gender" name="gender" value={formData.gender} onChange={handleChange} required>
                 <option value="">Select</option>
                 <option value="M">Male</option>
@@ -150,15 +150,15 @@ const RegistrationPage = () => {
               <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} />
             </div>
             <div className="form-group">
-              <label htmlFor="phone">Mobile Number</label>
+              <label htmlFor="phone">Mobile Number <span className="required">*</span></label>
               <input type="tel" id="phone" name="mobile_number" value={formData.mobile_number} onChange={handleChange} pattern="\d{10}" title="Please enter 10 digits" required />
             </div>
             <div className="form-group">
-              <label htmlFor="address">Address</label>
+              <label htmlFor="address">Address <span className="required">*</span></label>
               <input type="text" id="address" name="address" value={formData.address} onChange={handleChange} required />
             </div>
             <div className="form-group">
-              <label htmlFor="city">City</label>
+              <label htmlFor="city">City <span className="required">*</span></label>
               <input type="text" id="city" name="city" value={formData.city} onChange={handleChange} required />
             </div>
             <div className="form-group">
@@ -166,11 +166,11 @@ const RegistrationPage = () => {
               <input type="text" id="state" name="state" value={formData.state} onChange={handleChange} />
             </div>
             <div className="form-group">
-              <label htmlFor="category">Category</label>
+              <label htmlFor="category">Category <span className="required">*</span></label>
               <input type="text" id="category" name="category" placeholder="Example: Hospital Branch / Department / Section" value={formData.category} onChange={handleChange} required />
             </div>
             <div className="form-group">
-              <label htmlFor="date">Date of Registration</label>
+              <label htmlFor="date">Date of Registration <span className="required">*</span></label>
               <input type="date" id="date" name="date" value={formData.createdAt} onChange={handleChange} required />
             </div>
             <div className="form-group">
@@ -178,7 +178,7 @@ const RegistrationPage = () => {
               <textarea id="reason" name="reason" value={formData.reason} onChange={handleChange}></textarea>
             </div>
             <div className="form-group">
-              <label htmlFor="typeOfVisit">Type of Visit</label>
+              <label htmlFor="typeOfVisit">Type of Visit <span className="required">*</span></label>
               <select id="typeOfVisit" name="typeOfVisit" value={formData.typeOfVisit} onChange={handleChange} required>
                 <option value="">Select</option>
                 <option value="consultation">Consultation</option>
