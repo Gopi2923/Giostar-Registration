@@ -134,3 +134,22 @@ button[type="button"]:hover {
 .patient-details p strong {
   color: #333;
 }
+
+.back-btn {
+  position: absolute;
+  width: 12%;
+  height: 8%;
+  top: 30px;
+  left: 30px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.back-btn:hover {
+  background-color: #0056b3;
+}

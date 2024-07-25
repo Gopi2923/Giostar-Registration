@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import QRimage from '../../assets/images/QR code img.jpeg';
+import { useNavigate } from 'react-router-dom';
 import './RegistrationPage.css';
 
 const RegistrationPage = () => {
@@ -20,6 +21,7 @@ const RegistrationPage = () => {
     reason: '',
     typeOfVisit: '',
   });
+  const navigate = useNavigate()
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   // const [orderId, setOrderId] = useState('');
@@ -76,6 +78,7 @@ const RegistrationPage = () => {
 
   return (
     <div className='registration-container'>
+      <button className="back-btn" onClick={() => navigate('/')}>Back to Home</button>
     <div className="registration-form">
       <div className="header">
         <i className="fas fa-hospital-alt"></i>
