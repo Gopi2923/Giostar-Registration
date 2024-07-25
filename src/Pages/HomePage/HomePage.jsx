@@ -9,6 +9,7 @@ import { FaDownload } from 'react-icons/fa';
 const HomePage = () => {
   const navigate = useNavigate();
   const [registrations, setRegistrations] = useState([]);
+  const [filteredRegistrations, setFilteredRegistrations] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const csvLinkRef = useRef(null);
 
@@ -20,7 +21,13 @@ const HomePage = () => {
     setIsLoading(true);
     try {
       const response = await axios.get('https://giostar.onrender.com/registration/getAllRegistrations');
-      setRegistrations(response.data.data); // assuming response.data.data contains the array of registrations
+      const data = response.data.data; // assuming response.data.data contains the array of registrations
+      
+      // Filter out unwanted columns here
+      const filteredData = data.map(({ _id, isRegistered, createdAt, updatedAt, __v, id, ...rest }) => rest);
+
+      setRegistrations(filteredData);
+      setFilteredRegistrations(filteredData);
       setIsLoading(false);
     } catch (error) {
       console.error('Error fetching registrations:', error);
@@ -29,10 +36,10 @@ const HomePage = () => {
   };
 
   useEffect(() => {
-    if (registrations.length > 0) {
+    if (filteredRegistrations.length > 0) {
       csvLinkRef.current.link.click();
     }
-  }, [registrations]);
+  }, [filteredRegistrations]);
 
   return (
     <div className="home-page">
@@ -45,7 +52,7 @@ const HomePage = () => {
           <FaDownload /> Export Registrations
         </button>
         <CSVLink
-          data={registrations}
+          data={filteredRegistrations}
           filename={"registrations.csv"}
           className="download-link"
           ref={csvLinkRef}

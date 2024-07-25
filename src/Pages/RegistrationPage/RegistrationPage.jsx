@@ -16,10 +16,10 @@ const RegistrationPage = () => {
     address: '',
     city: '',
     state: '',
-    category: '',
-    date: '',
+    pincode: '',
+    createdAt: new Date().toISOString().split('T')[0],
     reason: '',
-    typeOfVisit: '',
+    typeOfVisit: 'consultation',
   });
   const navigate = useNavigate()
 
@@ -46,10 +46,20 @@ const RegistrationPage = () => {
       }
     } else if (name === 'age') {
       const ageValue = value.replace(/\D/g, ''); // Remove non-digit characters
-      setFormData({
-        ...formData,
-        [name]: ageValue,
-      });
+      if (ageValue.length <= 3) {
+        setFormData({
+          ...formData,
+          [name]: ageValue,
+        });
+      }
+    } else if (name === 'pincode') {
+      const pincodeValue = value.replace(/\D/g, ''); // Remove non-digit characters
+      if (pincodeValue.length <= 6) {
+        setFormData({
+          ...formData,
+          [name]: pincodeValue,
+        });
+      }
     } else {
       setFormData({
         ...formData,
@@ -77,8 +87,8 @@ const RegistrationPage = () => {
   };
 
   const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+    const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('en-GB', options);
   };
 
   return (
@@ -103,19 +113,19 @@ const RegistrationPage = () => {
               <div className="response-details">
                 <h1>Payment Confirmed</h1>
                 <div className="patient-details">
-                  <p><strong>Patient ID:</strong> {responseData.patientId}</p>
-                  <p><strong>Name:</strong> {responseData.firstName} {responseData.middleName} {responseData.lastName}</p>
-                  <p><strong>Age:</strong> {responseData.age}</p>
-                  <p><strong>Gender:</strong> {responseData.gender}</p>
-                  <p><strong>Email:</strong> {responseData.email}</p>
-                  <p><strong>Mobile Number:</strong> {responseData.mobile_number}</p>
-                  <p><strong>Address:</strong> {responseData.address}</p>
-                  <p><strong>City:</strong> {responseData.city}</p>
-                  <p><strong>State:</strong> {responseData.state}</p>
-                  <p><strong>Category:</strong> {responseData.category}</p>
-                  <p><strong>Date of Registration:</strong> {formatDate(responseData.createdAt)}</p>
-                  <p><strong>Reason for Visit:</strong> {responseData.reason}</p>
-                  <p><strong>Type of Visit:</strong> {responseData.typeOfVisit}</p>
+                  {responseData.patientId && <p><strong>Patient ID:</strong> {responseData.patientId}</p> }
+                  {responseData.firstName && <p><strong>Name:</strong> {responseData.firstName} {responseData.middleName || ''} {responseData.lastName || ''}</p> }
+                  {responseData.age && <p><strong>Age:</strong> {responseData.age}</p> }
+                  {responseData.gender && <p><strong>Gender:</strong> {responseData.gender}</p> }
+                  {responseData.email && <p><strong>Email:</strong> {responseData.email}</p> }
+                  {responseData.mobile_number &&<p><strong>Mobile Number:</strong> {responseData.mobile_number}</p> }
+                  {responseData.address && <p><strong>Address:</strong> {responseData.address}</p> }
+                  {responseData.city && <p><strong>City:</strong> {responseData.city}</p> }
+                  {responseData.state && <p><strong>State:</strong> {responseData.state}</p> }
+                  {responseData.pincode && <p><strong>Pincode:</strong> {responseData.pincode}</p> }
+                  {responseData.createdAt && <p><strong>Date of Registration:</strong> {formatDate(responseData.createdAt)}</p> }
+                  {responseData.reason && <p><strong>Reason for Visit:</strong> {responseData.reason}</p> }
+                  {responseData.typeOfVisit &&<p><strong>Type of Visit:</strong> {responseData.typeOfVisit}</p> }
                 </div>
               </div>
             )
@@ -159,24 +169,25 @@ const RegistrationPage = () => {
               <input type="tel" id="phone" name="mobile_number" value={formData.mobile_number} onChange={handleChange} pattern="\d{10}" title="Please enter 10 digits" required />
             </div>
             <div className="form-group">
-              <label htmlFor="address">Address <span className="required">*</span></label>
-              <input type="text" id="address" name="address" value={formData.address} onChange={handleChange} required />
+              <label htmlFor="address">Address</label>
+              <input type="text" id="address" name="address" value={formData.address} onChange={handleChange}/>
             </div>
             <div className="form-group">
-              <label htmlFor="city">City <span className="required">*</span></label>
-              <input type="text" id="city" name="city" value={formData.city} onChange={handleChange} required />
+              <label htmlFor="city">City</label>
+              <input type="text" id="city" name="city" value={formData.city} onChange={handleChange}/>
             </div>
             <div className="form-group">
               <label htmlFor="state">State</label>
               <input type="text" id="state" name="state" value={formData.state} onChange={handleChange} />
             </div>
             <div className="form-group">
-              <label htmlFor="category">Category <span className="required">*</span></label>
-              <input type="text" id="category" name="category" placeholder="Example: Hospital Branch / Department / Section" value={formData.category} onChange={handleChange} required />
+              <label htmlFor="category">Pincode</label>
+              <input type="number" id="category" name="pincode"  value={formData.pincode} onChange={handleChange}/>
             </div>
             <div className="form-group">
               <label htmlFor="date">Date of Registration <span className="required">*</span></label>
-              <input type="date" id="date" name="date" value={formData.createdAt} onChange={handleChange} required />
+              <input type="date" id="date" name="createdAt" value={formData.createdAt} onChange={handleChange} 
+                  style={{ backgroundColor: '#f0f0f0', cursor: 'not-allowed' }} readOnly required />
             </div>
             <div className="form-group">
               <label htmlFor="reason">Reason for Visit</label>
@@ -187,7 +198,7 @@ const RegistrationPage = () => {
               <select id="typeOfVisit" name="typeOfVisit" value={formData.typeOfVisit} onChange={handleChange} required>
                 <option value="">Select</option>
                 <option value="consultation">Consultation</option>
-                <option value="followup">Follow-up</option>
+                {/* <option value="followup">Follow-up</option> */}
               </select>
             </div>
             <button type="submit">Submit</button>
