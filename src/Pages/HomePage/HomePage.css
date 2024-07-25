@@ -73,8 +73,8 @@
 
 .loading {
   position: fixed;
-  top: 50%;
-  left: 50%;
+  top: 83%;
+  left: 38%;
   transform: translate(-50%, -50%);
   font-size: 1.5em;
   color: #333;
