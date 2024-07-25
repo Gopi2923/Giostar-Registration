@@ -34,19 +34,21 @@
   margin-bottom: 30px;
 }
 
-.register-btn {
-  padding: 10px 20px;
-  width: 200px;
-  height: 50px;
-  font-size: 16px;
+.register-btn, .export-btn {
+  display: inline-block;
+  padding: 12px 20px;
   background-color: #007bff;
   color: white;
   border: none;
-  border-radius: 10px;
+  border-radius: 5px;
+  font-size: 16px;
   cursor: pointer;
+  margin: 10px 5px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
 }
 
-.register-btn:hover {
+.register-btn:hover, .export-btn:hover {
   background-color: #0056b3;
 }
 
@@ -55,4 +57,25 @@
   background: url("./../../assets/images/background-image.jpg") no-repeat center
     center;
   background-size: cover;
+}
+
+.download-link {
+  display: block;
+  margin: 10px auto;
+  color: #007bff;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.download-link:hover {
+  text-decoration: underline;
+}
+
+.loading {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.5em;
+  color: #333;
 }
