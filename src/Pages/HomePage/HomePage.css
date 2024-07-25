@@ -2,8 +2,8 @@
 
 .home-page {
   display: flex;
+  flex-direction: column;
   height: 100vh;
-  /* background: linear-gradient(135deg, #00feba, #5b548a); */
 }
 
 .content {
@@ -12,10 +12,13 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  padding: 20px;
+  text-align: center;
 }
 
 .logo {
-  width: 550px;
+  width: 100%;
+  max-width: 400px;
   height: auto;
   margin-bottom: 10px;
 }
@@ -53,10 +56,7 @@
 }
 
 .background-img {
-  flex: 1;
-  background: url("./../../assets/images/background-image.jpg") no-repeat center
-    center;
-  background-size: cover;
+  display: none;
 }
 
 .download-link {
@@ -78,4 +78,17 @@
   transform: translate(-50%, -50%);
   font-size: 1.5em;
   color: #333;
+}
+
+@media (min-width: 768px) {
+  .home-page {
+    flex-direction: row;
+  }
+
+  .background-img {
+    flex: 1;
+    display: block;
+    background: url("./../../assets/images/background-image.jpg") no-repeat center center;
+    background-size: cover;
+  }
 }
