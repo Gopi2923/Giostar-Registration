@@ -30,7 +30,7 @@ const RegistrationPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'firstName') {
+    if (name === 'firstName' || name === 'middleName' || name === 'lastName' || name === 'city' || name === 'state' || name === 'category') {
       const cleanedValue = value.replace(/[^a-zA-Z\s]/g, ''); // Remove non-letter characters
       setFormData({
         ...formData,
@@ -44,6 +44,12 @@ const RegistrationPage = () => {
           [name]: cleanedValue,
         });
       }
+    } else if (name === 'age') {
+      const ageValue = value.replace(/\D/g, ''); // Remove non-digit characters
+      setFormData({
+        ...formData,
+        [name]: ageValue,
+      });
     } else {
       setFormData({
         ...formData,
@@ -51,7 +57,6 @@ const RegistrationPage = () => {
       });
     }
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Update the isSubmitted state to show the QR code
@@ -146,7 +151,7 @@ const RegistrationPage = () => {
               </select>
             </div>
             <div className="form-group">
-              <label htmlFor="email">Email ID</label>
+              <label htmlFor="email">Email ID <span className="required">*</span></label>
               <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} />
             </div>
             <div className="form-group">

@@ -40,11 +40,13 @@
 .register-btn, .export-btn {
   display: inline-block;
   padding: 12px 20px;
+  width: 250px;
+  height: 100px;
   background-color: #007bff;
   color: white;
   border: none;
   border-radius: 5px;
-  font-size: 16px;
+  font-size: 30px;
   cursor: pointer;
   margin: 10px 5px;
   text-decoration: none;
