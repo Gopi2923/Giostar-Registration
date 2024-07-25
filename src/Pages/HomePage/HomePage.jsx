@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import './HomePage.css';
 import logo from '../../assets/images/logo-01.png';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +10,7 @@ const HomePage = () => {
   const navigate = useNavigate();
   const [registrations, setRegistrations] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const csvLinkRef = useRef(null);
 
   const handleButtonClick = () => {
     navigate('./register');
@@ -19,13 +20,19 @@ const HomePage = () => {
     setIsLoading(true);
     try {
       const response = await axios.get('https://giostar.onrender.com/registration/getAllRegistrations');
-      setRegistrations(response.data);
+      setRegistrations(response.data.data); // assuming response.data.data contains the array of registrations
       setIsLoading(false);
     } catch (error) {
       console.error('Error fetching registrations:', error);
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (registrations.length > 0) {
+      csvLinkRef.current.link.click();
+    }
+  }, [registrations]);
 
   return (
     <div className="home-page">
@@ -37,11 +44,12 @@ const HomePage = () => {
         <button className="export-btn" onClick={fetchRegistrations}>
           <FaDownload /> Export Registrations
         </button>
-        {registrations.length > 0 && (
-          <CSVLink data={registrations} filename={"registrations.csv"} className="download-link">
-            Download CSV
-          </CSVLink>
-        )}
+        <CSVLink
+          data={registrations}
+          filename={"registrations.csv"}
+          className="download-link"
+          ref={csvLinkRef}
+        />
       </div>
       <div className="background-img"></div>
       {isLoading && <div className="loading">Loading...</div>}
