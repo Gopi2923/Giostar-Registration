@@ -135,11 +135,11 @@ const RegistrationPage = () => {
         <>
           <form onSubmit={handleSubmit}>
             <div className="form-group name-group">
-              <div>
+              <div className='form-group'>
                 <label htmlFor="firstName">First Name <span className="required">*</span></label>
                 <input type="text" id="firstName" name="firstName" value={formData.firstName} onChange={handleChange} required />
               </div>
-              <div>
+              <div className='form-group'>
                 <label htmlFor="middleName">Middle Name</label>
                 <input type="text" id="middleName" name="middleName" value={formData.middleName} onChange={handleChange} />
               </div>
