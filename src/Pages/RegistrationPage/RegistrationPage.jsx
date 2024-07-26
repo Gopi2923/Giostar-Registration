@@ -17,7 +17,7 @@ const RegistrationPage = () => {
     city: '',
     state: '',
     pincode: '',
-    createdAt: new Date().toISOString().split('T')[0],
+    dateOfRegistration: new Date().toISOString().split('T')[0],
     reason: '',
     typeOfVisit: 'consultation',
   });
@@ -30,7 +30,7 @@ const RegistrationPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'firstName' || name === 'middleName' || name === 'lastName' || name === 'city' || name === 'state' || name === 'category') {
+    if (name === 'firstName' || name === 'middleName' || name === 'lastName' || name === 'city' || name === 'state' || name === 'category' || name === 'reason') {
       const cleanedValue = value.replace(/[^a-zA-Z\s]/g, ''); // Remove non-letter characters
       setFormData({
         ...formData,
@@ -186,7 +186,7 @@ const RegistrationPage = () => {
             </div>
             <div className="form-group">
               <label htmlFor="date">Date of Registration <span className="required">*</span></label>
-              <input type="date" id="date" name="createdAt" value={formData.createdAt} onChange={handleChange} 
+              <input type="date" id="date" name="dateOfRegistration" value={formData.dateOfRegistration} onChange={handleChange} 
                   style={{ backgroundColor: '#f0f0f0', cursor: 'not-allowed' }} readOnly required />
             </div>
             <div className="form-group">
@@ -196,8 +196,8 @@ const RegistrationPage = () => {
             <div className="form-group">
               <label htmlFor="typeOfVisit">Type of Visit <span className="required">*</span></label>
               <select id="typeOfVisit" name="typeOfVisit" value={formData.typeOfVisit} onChange={handleChange} required>
-                <option value="">Select</option>
                 <option value="consultation">Consultation</option>
+                {/* <option value="consultation">Consultation</option> */}
                 {/* <option value="followup">Follow-up</option> */}
               </select>
             </div>
