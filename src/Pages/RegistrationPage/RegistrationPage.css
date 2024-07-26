@@ -162,3 +162,44 @@ button[type="button"]:hover {
 .required {
   color: red;
 }
+
+.modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background-color: #fefefe;
+  padding: 20px;
+  border-radius: 10px;
+  width: 600px;
+  height: 280px;
+  font-size: 25px;
+  text-align: center;
+  position: relative;
+}
+
+.modal-content h2 {
+  color: #0dab0d;
+}
+.close {
+  position: absolute;
+  top: 0px;
+  right: 10px;
+  font-size: 60px;
+  cursor: pointer;
+}
+
+.success-icon {
+  font-size: 50px;
+  color: green;
+  margin-top: 20px;
+}
