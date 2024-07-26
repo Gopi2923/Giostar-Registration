@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import axios from 'axios';
-import QRimage from '../../assets/images/QR code img.jpeg';
+import QRimage from '../../assets/images/qrcode.png';
 import { useNavigate } from 'react-router-dom';
 import './RegistrationPage.css';
 
@@ -105,7 +105,7 @@ const RegistrationPage = () => {
             <div className="qr-code-card">
               <h2>Total Amount: 300 /-</h2>
               <h2>Scan to Pay</h2>
-              <img src={QRimage} alt="QR" width={'250px'} height={'250px'} />
+              <img src={QRimage} alt="QR" width={'280px'} height={'250px'} />
               <button onClick={handlePaymentConfirm} type='submit'>Confirm Payment</button>
             </div>
           ) : (
