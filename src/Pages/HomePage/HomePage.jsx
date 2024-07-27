@@ -17,6 +17,7 @@ const HomePage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [error, setError] = useState(null);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
   const csvLinkRef = useRef(null);
 
   const handleButtonClick = () => {
@@ -43,6 +44,7 @@ const HomePage = () => {
 
       setRegistrations(filteredData);
       setFilteredRegistrations(filteredData);
+      setModalIsOpen(false); // Close the modal
     } catch (error) {
       setError('Error fetching registrations');
       console.error('Error fetching registrations:', error);
@@ -57,16 +59,9 @@ const HomePage = () => {
     }
   }, [filteredRegistrations]);
 
-  const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString('en-GB', options);
-  };
-  
   // Define CSV headers
   const csvHeaders = [
     { label: 'Name', key: 'firstName' },
-    // { label: 'Middle Name', key: 'middleName' },
-    // { label: 'Last Name', key: 'lastname' },
     { label: 'Age', key: 'age' },
     { label: 'Gender', key: 'gender' },
     { label: 'Email', key: 'email' },
@@ -82,18 +77,9 @@ const HomePage = () => {
         <h4 className="title">Effortless Patient Registration</h4>
         <p className="subtitle">"From Registration to Care: Enhancing the Patient Journey"</p>
         <button className="register-btn" onClick={handleButtonClick}>Register</button>
-        <div className="date-picker-container date-pick">
-          <DatePicker
-            selected={selectedDate}
-            onChange={date => setSelectedDate(date)}
-            placeholderText="Select a date"
-            dateFormat="yyyy/MM/dd"
-          />
-        </div>
-        <button className="export-btn" onClick={fetchRegistrations}>
-          {isLoading ? <> Loading <TailSpin color="#fff" height={34} width={44}/></> : <><FaDownload /> Export Registrations</>}
+        <button className="export-btn" onClick={() => setModalIsOpen(true)}>
+          {isLoading ? <> Loading <TailSpin color="#fff" height={34} width={44}/> </> : <><FaDownload /> Export Registrations</>}
         </button>
-        {error && <p className="error-message">{error}</p>}
         <CSVLink
           data={filteredRegistrations}
           headers={csvHeaders}
@@ -103,6 +89,31 @@ const HomePage = () => {
         />
       </div>
       <div className="background-img"></div>
+
+      <div id="myModal" className="modal" style={{ display: modalIsOpen ? 'block' : 'none' }}>
+        <div className="modal-content">
+          <span className="close" onClick={() => setModalIsOpen(false)}>&times;</span>
+          <h2>Select a Date</h2>
+          <div className="date-picker-container">
+            <DatePicker
+              selected={selectedDate}
+              onChange={date => setSelectedDate(date)}
+              placeholderText="Select a date"
+              dateFormat="yyyy/MM/dd"
+              className="date-input"
+            />
+          </div>
+          <button className="download-btn" onClick={fetchRegistrations} disabled={isLoading}>
+            {isLoading ? (
+              <div className="spinner-container">
+                Loading <TailSpin color="#fff" height={24} width={24} />
+              </div>
+            ) : (
+              "Download"
+            )}
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
