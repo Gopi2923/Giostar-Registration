@@ -1,8 +1,7 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import './HomePage.css';
 import logo from '../../assets/images/logo-01.png';
 import { useNavigate } from 'react-router-dom';
-import { CSVLink } from 'react-csv';
 import axios from 'axios';
 import { FaDownload } from 'react-icons/fa';
 import { TailSpin } from 'react-loader-spinner';
@@ -11,15 +10,14 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import * as XLSX from 'xlsx';
 
 const HomePage = () => {
   const navigate = useNavigate();
   const [registrations, setRegistrations] = useState([]);
-  const [filteredRegistrations, setFilteredRegistrations] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const csvLinkRef = useRef(null);
 
   const handleButtonClick = () => {
     navigate('./register');
@@ -40,14 +38,13 @@ const HomePage = () => {
 
       const data = response.data.data;
 
-      // Check if data is empty and show toast message
       if (!data || data.length === 0) {
         toast.error(response.data.message || 'Empty Registrations');
       } else {
         const filteredData = data.map(({ _id, isRegistered, updatedAt, __v, address, city, state, pincode, reason, typeOfVisit, middleName, lastname, ...rest }) => rest);
         setRegistrations(filteredData);
-        setFilteredRegistrations(filteredData);
-        setModalIsOpen(false); // Close the modal
+        exportToCSV(filteredData);
+        setModalIsOpen(false);
       }
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Error fetching registrations';
@@ -59,26 +56,84 @@ const HomePage = () => {
     }
   };
 
-  useEffect(() => {
-    if (filteredRegistrations.length > 0) {
-      csvLinkRef.current.link.click();
-    }
-  }, [filteredRegistrations]);
+  const exportToCSV = (data) => {
+    const headers = [
+      { label: 'Name', key: 'firstName' },
+      { label: 'Age', key: 'age' },
+      { label: 'Gender', key: 'gender' },
+      { label: 'Email', key: 'email' },
+      { label: 'Mobile Number', key: 'mobile_number' },
+      { label: 'Date of Registration', key: 'createdAt' },
+      { label: 'Patient ID', key: 'patientId' },
+    ];
 
-  const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString('en-GB', options);
-  };
-  
-  const csvHeaders = [
-    { label: 'Name', key: 'firstName' },
-    { label: 'Age', key: 'age' },
-    { label: 'Gender', key: 'gender' },
-    { label: 'Email', key: 'email' },
-    { label: 'Mobile Number', key: 'mobile_number' },
-    { label: 'Date of Registration', key: 'createdAt' },
-    { label: 'Patient ID', key: 'patientId' },
-  ];
+    const worksheetData = data.map(item => {
+      const row = {};
+      headers.forEach(header => {
+        if (header.key === 'createdAt') {
+          row[header.label] = format(new Date(item[header.key]), 'dd-MM-yyyy');
+        } else {
+          row[header.label] = item[header.key];
+        }
+      });
+      return row;
+    });
+
+    // Add the headers to the worksheet data
+    worksheetData.unshift(headers.reduce((acc, header) => {
+      acc[header.label] = header.label;
+      return acc;
+    }, {}));
+
+    const worksheet = XLSX.utils.json_to_sheet(worksheetData, { skipHeader: true });
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Registrations');
+
+    worksheet['!cols'] = [
+      { wpx: 150 }, // Increase width for 'Name'
+      { wpx: 50 },
+      { wpx: 100 },
+      { wpx: 200 },
+      { wpx: 150 },
+      { wpx: 150 },
+      { wpx: 150 },
+    ];
+
+   // Apply alignment to all cells
+  const range = XLSX.utils.decode_range(worksheet['!ref']);
+  for (let R = range.s.r; R <= range.e.r; ++R) {
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const cell_address = { c: C, r: R };
+      const cell_ref = XLSX.utils.encode_cell(cell_address);
+      if (!worksheet[cell_ref]) continue;
+      worksheet[cell_ref].s = {
+        alignment: {
+          vertical: 'center',
+          horizontal: 'center'
+        }
+      };
+    }
+  }
+
+  // Setting headers style
+  headers.forEach((header, index) => {
+    const cell_address = { c: index, r: 0 };
+    const cell_ref = XLSX.utils.encode_cell(cell_address);
+    if (worksheet[cell_ref]) {
+      worksheet[cell_ref].s = {
+        alignment: {
+          vertical: 'center',
+          horizontal: 'center'
+        },
+        font: {
+          bold: true
+        }
+      };
+    }
+  });
+
+  XLSX.writeFile(workbook, 'registrations.xlsx');
+};
 
   return (
     <div className="home-page">
@@ -96,13 +151,6 @@ const HomePage = () => {
             <><FaDownload /> Export Registrations</>
           )}
         </button>
-        <CSVLink
-          data={filteredRegistrations}
-          headers={csvHeaders}
-          filename={"registrations.csv"}
-          className="download-link"
-          ref={csvLinkRef}
-        />
       </div>
       <div className="background-img"></div>
 
