@@ -71,8 +71,7 @@
   resize: vertical;
 }
 
-button[type="submit"],
-button[type="button"] {
+button[type="submit"] {
   width: 100%;
   padding: 12px;
   background-color: #007bff;
