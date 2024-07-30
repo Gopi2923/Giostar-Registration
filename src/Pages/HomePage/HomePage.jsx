@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import styled, { keyframes } from 'styled-components';
 import './HomePage.css';
 import logo from '../../assets/images/logo-01.png';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +13,56 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import * as XLSX from 'xlsx';
 import ParticlesBg from 'particles-bg';
+
+// Keyframes for animations
+const pulse = keyframes`
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+`;
+
+// const bounce = keyframes`
+//   0%, 20%, 50%, 80%, 100% {
+//     transform: translateY(0);
+//   }
+//   40% {
+//     transform: translateY(-20px);
+//   }
+//   60% {
+//     transform: translateY(-10px);
+//   }
+// `;
+
+// Styled components with animations
+const RegisterButton = styled.button`
+  padding: 10px 20px;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.3s ease;
+  animation: ${pulse} 2s infinite;
+`;
+
+// const ExportButton = styled.button`
+//   padding: 10px 20px;
+//   font-size: 16px;
+//   color: #fff;
+//   background-color: #007bff;
+//   border: none;
+//   border-radius: 5px;
+//   cursor: pointer;
+//   outline: none;
+//   transition: all 0.3s ease;
+//   animation: ${bounce} 2s infinite;
+// `;
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -100,41 +151,41 @@ const HomePage = () => {
       { wpx: 150 },
     ];
 
-    // Apply alignment to all cells
-    const range = XLSX.utils.decode_range(worksheet['!ref']);
-    for (let R = range.s.r; R <= range.e.r; ++R) {
-      for (let C = range.s.c; C <= range.e.c; ++C) {
-        const cell_address = { c: C, r: R };
-        const cell_ref = XLSX.utils.encode_cell(cell_address);
-        if (!worksheet[cell_ref]) continue;
-        worksheet[cell_ref].s = {
-          alignment: {
-            vertical: 'center',
-            horizontal: 'center'
-          }
-        };
-      }
-    }
+   // Apply alignment to all cells
+   const range = XLSX.utils.decode_range(worksheet['!ref']);
+   for (let R = range.s.r; R <= range.e.r; ++R) {
+     for (let C = range.s.c; C <= range.e.c; ++C) {
+       const cell_address = { c: C, r: R };
+       const cell_ref = XLSX.utils.encode_cell(cell_address);
+       if (!worksheet[cell_ref]) continue;
+       worksheet[cell_ref].s = {
+         alignment: {
+           vertical: 'center',
+           horizontal: 'center'
+         }
+       };
+     }
+   }
 
-    // Setting headers style
-    headers.forEach((header, index) => {
-      const cell_address = { c: index, r: 0 };
-      const cell_ref = XLSX.utils.encode_cell(cell_address);
-      if (worksheet[cell_ref]) {
-        worksheet[cell_ref].s = {
-          alignment: {
-            vertical: 'center',
-            horizontal: 'center'
-          },
-          font: {
-            bold: true
-          }
-        };
-      }
-    });
+   // Setting headers style
+   headers.forEach((header, index) => {
+     const cell_address = { c: index, r: 0 };
+     const cell_ref = XLSX.utils.encode_cell(cell_address);
+     if (worksheet[cell_ref]) {
+       worksheet[cell_ref].s = {
+         alignment: {
+           vertical: 'center',
+           horizontal: 'center'
+         },
+         font: {
+           bold: true
+         }
+       };
+     }
+   });
 
-    XLSX.writeFile(workbook, 'registrations.xlsx');
-  };
+   XLSX.writeFile(workbook, 'registrations.xlsx');
+ };
 
   return (
     <div className="home-page">
@@ -143,8 +194,8 @@ const HomePage = () => {
         <img src={logo} alt="Hospital Logo" className="logo" />
         <h4 className="title">Effortless Patient Registration</h4>
         <p className="subtitle">"From Registration to Care: Enhancing the Patient Journey"</p>
-        <button className="register-btn" onClick={handleButtonClick}>Register</button>
-        <button className="export-btn" onClick={() => setModalIsOpen(true)}>
+        <RegisterButton className="register-btn" onClick={handleButtonClick}>Register</RegisterButton>
+        <button className='export-btn' onClick={() => setModalIsOpen(true)}>
           {isLoading ? (
             <div className="spinner-container">
               Loading <TailSpin color="#fff" height={24} width={24} />
@@ -169,7 +220,7 @@ const HomePage = () => {
             />
           </div>
           <button className="download-btn" onClick={fetchRegistrations} disabled={isLoading}>
-          {isLoading ? (
+            {isLoading ? (
               <div className="spinner-container">
                 Loading <TailSpin color="#fff" height={24} width={24} />
               </div>
