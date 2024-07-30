@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import * as XLSX from 'xlsx';
+import ParticlesBg from 'particles-bg';
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -99,44 +100,45 @@ const HomePage = () => {
       { wpx: 150 },
     ];
 
-   // Apply alignment to all cells
-  const range = XLSX.utils.decode_range(worksheet['!ref']);
-  for (let R = range.s.r; R <= range.e.r; ++R) {
-    for (let C = range.s.c; C <= range.e.c; ++C) {
-      const cell_address = { c: C, r: R };
+    // Apply alignment to all cells
+    const range = XLSX.utils.decode_range(worksheet['!ref']);
+    for (let R = range.s.r; R <= range.e.r; ++R) {
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const cell_address = { c: C, r: R };
+        const cell_ref = XLSX.utils.encode_cell(cell_address);
+        if (!worksheet[cell_ref]) continue;
+        worksheet[cell_ref].s = {
+          alignment: {
+            vertical: 'center',
+            horizontal: 'center'
+          }
+        };
+      }
+    }
+
+    // Setting headers style
+    headers.forEach((header, index) => {
+      const cell_address = { c: index, r: 0 };
       const cell_ref = XLSX.utils.encode_cell(cell_address);
-      if (!worksheet[cell_ref]) continue;
-      worksheet[cell_ref].s = {
-        alignment: {
-          vertical: 'center',
-          horizontal: 'center'
-        }
-      };
-    }
-  }
+      if (worksheet[cell_ref]) {
+        worksheet[cell_ref].s = {
+          alignment: {
+            vertical: 'center',
+            horizontal: 'center'
+          },
+          font: {
+            bold: true
+          }
+        };
+      }
+    });
 
-  // Setting headers style
-  headers.forEach((header, index) => {
-    const cell_address = { c: index, r: 0 };
-    const cell_ref = XLSX.utils.encode_cell(cell_address);
-    if (worksheet[cell_ref]) {
-      worksheet[cell_ref].s = {
-        alignment: {
-          vertical: 'center',
-          horizontal: 'center'
-        },
-        font: {
-          bold: true
-        }
-      };
-    }
-  });
-
-  XLSX.writeFile(workbook, 'registrations.xlsx');
-};
+    XLSX.writeFile(workbook, 'registrations.xlsx');
+  };
 
   return (
     <div className="home-page">
+      <ParticlesBg type="square" bg={true} />
       <div className="content">
         <img src={logo} alt="Hospital Logo" className="logo" />
         <h4 className="title">Effortless Patient Registration</h4>
