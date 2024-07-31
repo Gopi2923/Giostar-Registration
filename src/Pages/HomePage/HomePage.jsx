@@ -12,6 +12,8 @@ import { format } from 'date-fns';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import * as XLSX from 'xlsx';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 import ParticlesBg from 'particles-bg';
 
 // Keyframes for animations
@@ -42,7 +44,8 @@ const RegisterButton = styled.button`
 const HomePage = () => {
   const navigate = useNavigate();
   const [registrations, setRegistrations] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingExcel, setIsLoadingExcel] = useState(false);
+  const [isLoadingPDF, setIsLoadingPDF] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
 
@@ -50,13 +53,18 @@ const HomePage = () => {
     navigate('./register');
   };
 
-  const fetchRegistrations = async () => {
+  const fetchRegistrations = async (fileFormat) => {
     if (!selectedDate) {
       toast.error("Please select a date.");
       return;
     }
 
-    setIsLoading(true);
+    if (fileFormat === 'csv') {
+      setIsLoadingExcel(true);
+    } else {
+      setIsLoadingPDF(true);
+    }
+
     try {
       const formattedDate = format(selectedDate, 'yyyy/MM/dd');
       const response = await axios.post('https://giostar.onrender.com/registration/getAll', {
@@ -70,7 +78,11 @@ const HomePage = () => {
       } else {
         const filteredData = data.map(({ _id, isRegistered, updatedAt, __v, address, city, state, pincode, reason, typeOfVisit, middleName, lastname, ...rest }) => rest);
         setRegistrations(filteredData);
-        exportToCSV(filteredData);
+        if (fileFormat === 'csv') {
+          exportToCSV(filteredData);
+        } else if (fileFormat === 'pdf') {
+          exportToPDF(filteredData);
+        }
         setModalIsOpen(false);
       }
     } catch (error) {
@@ -78,7 +90,8 @@ const HomePage = () => {
       toast.error(errorMessage);
       console.error('Error fetching registrations:', error);
     } finally {
-      setIsLoading(false);
+      setIsLoadingExcel(false);
+      setIsLoadingPDF(false);
       setSelectedDate(null);
     }
   };
@@ -126,41 +139,73 @@ const HomePage = () => {
       { wpx: 150 },
     ];
 
-   // Apply alignment to all cells
-   const range = XLSX.utils.decode_range(worksheet['!ref']);
-   for (let R = range.s.r; R <= range.e.r; ++R) {
-     for (let C = range.s.c; C <= range.e.c; ++C) {
-       const cell_address = { c: C, r: R };
-       const cell_ref = XLSX.utils.encode_cell(cell_address);
-       if (!worksheet[cell_ref]) continue;
-       worksheet[cell_ref].s = {
-         alignment: {
-           vertical: 'center',
-           horizontal: 'center'
-         }
-       };
-     }
-   }
+    // Apply alignment to all cells
+    const range = XLSX.utils.decode_range(worksheet['!ref']);
+    for (let R = range.s.r; R <= range.e.r; ++R) {
+      for (let C = range.s.c; C <= range.e.c; ++C) {
+        const cell_address = { c: C, r: R };
+        const cell_ref = XLSX.utils.encode_cell(cell_address);
+        if (!worksheet[cell_ref]) continue;
+        worksheet[cell_ref].s = {
+          alignment: {
+            vertical: 'center',
+            horizontal: 'center'
+          }
+        };
+      }
+    }
 
-   // Setting headers style
-   headers.forEach((header, index) => {
-     const cell_address = { c: index, r: 0 };
-     const cell_ref = XLSX.utils.encode_cell(cell_address);
-     if (worksheet[cell_ref]) {
-       worksheet[cell_ref].s = {
-         alignment: {
-           vertical: 'center',
-           horizontal: 'center'
-         },
-         font: {
-           bold: true
-         }
-       };
-     }
-   });
+    // Setting headers style
+    headers.forEach((header, index) => {
+      const cell_address = { c: index, r: 0 };
+      const cell_ref = XLSX.utils.encode_cell(cell_address);
+      if (worksheet[cell_ref]) {
+        worksheet[cell_ref].s = {
+          alignment: {
+            vertical: 'center',
+            horizontal: 'center'
+          },
+          font: {
+            bold: true
+          }
+        };
+      }
+    });
 
-   XLSX.writeFile(workbook, 'registrations.xlsx');
- };
+    XLSX.writeFile(workbook, 'registrations.xlsx');
+  };
+
+  const exportToPDF = (data) => {
+    const doc = new jsPDF();
+    const headers = [
+      "Name",
+      "Age",
+      "Gender",
+      "Email",
+      "Mobile Number",
+      "Date of Registration",
+      "Patient ID"
+    ];
+    const rows = data.map(item => [
+      item.firstName,
+      item.age,
+      item.gender,
+      item.email,
+      item.mobile_number,
+      format(new Date(item.createdAt), 'dd-MM-yyyy'),
+      item.patientId
+    ]);
+
+    doc.autoTable({
+      head: [headers],
+      body: rows,
+      styles: { fontSize: 8, cellPadding: 3 },
+      headStyles: { fillColor: [22, 160, 133], textColor: 255, fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [245, 245, 245] }
+    });
+
+    doc.save('registrations.pdf');
+  };
 
   return (
     <div className="home-page">
@@ -171,7 +216,7 @@ const HomePage = () => {
         <p className="subtitle">"From Registration to Care: Enhancing the Patient Journey"</p>
         <RegisterButton className="register-btn" onClick={handleButtonClick}>Register</RegisterButton>
         <button className='export-btn' onClick={() => setModalIsOpen(true)}>
-          {isLoading ? (
+          {(isLoadingExcel || isLoadingPDF) ? (
             <div className="spinner-container">
               Loading <TailSpin color="#fff" height={24} width={24} />
             </div>
@@ -194,15 +239,26 @@ const HomePage = () => {
               dateFormat="yyyy/MM/dd"
             />
           </div>
-          <button className="download-btn" onClick={fetchRegistrations} disabled={isLoading}>
-            {isLoading ? (
-              <div className="spinner-container">
-                Loading <TailSpin color="#fff" height={24} width={24} />
-              </div>
-            ) : (
-              "Download"
-            )}
-          </button>
+          <div className="export-buttons">
+            <button onClick={() => fetchRegistrations('csv')} disabled={isLoadingExcel} className='download-btn'>
+              {isLoadingExcel ? (
+                <div className="spinner-container">
+                  Loading <TailSpin color="#fff" height={24} width={24} />
+                </div>
+              ) : (
+                "Download as Excel"
+              )}
+            </button>
+            <button onClick={() => fetchRegistrations('pdf')} disabled={isLoadingPDF} className='download-btn'>
+              {isLoadingPDF ? (
+                <div className="spinner-container">
+                  Loading <TailSpin color="#fff" height={24} width={24} />
+                </div>
+              ) : (
+                "Download as PDF"
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
