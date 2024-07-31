@@ -27,18 +27,6 @@ const pulse = keyframes`
   }
 `;
 
-// const bounce = keyframes`
-//   0%, 20%, 50%, 80%, 100% {
-//     transform: translateY(0);
-//   }
-//   40% {
-//     transform: translateY(-20px);
-//   }
-//   60% {
-//     transform: translateY(-10px);
-//   }
-// `;
-
 // Styled components with animations
 const RegisterButton = styled.button`
   padding: 10px 20px;
@@ -50,19 +38,6 @@ const RegisterButton = styled.button`
   transition: all 0.3s ease;
   animation: ${pulse} 2s infinite;
 `;
-
-// const ExportButton = styled.button`
-//   padding: 10px 20px;
-//   font-size: 16px;
-//   color: #fff;
-//   background-color: #007bff;
-//   border: none;
-//   border-radius: 5px;
-//   cursor: pointer;
-//   outline: none;
-//   transition: all 0.3s ease;
-//   animation: ${bounce} 2s infinite;
-// `;
 
 const HomePage = () => {
   const navigate = useNavigate();
