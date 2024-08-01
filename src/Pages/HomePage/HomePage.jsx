@@ -3,7 +3,7 @@ import './HomePage.css';
 import logo from '../../assets/images/logo-01.png';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FaDownload } from 'react-icons/fa';
+import { FaDownload, FaRegCalendarAlt } from 'react-icons/fa';
 import { TailSpin } from 'react-loader-spinner';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -206,6 +206,7 @@ const HomePage = () => {
           <span className="close" onClick={() => setModalIsOpen(false)}>&times;</span>
           <h2>Select a Date</h2>
           <div className="date-picker-container">
+          <FaRegCalendarAlt />
             <DatePicker
               selected={selectedDate}
               onChange={date => setSelectedDate(date)}

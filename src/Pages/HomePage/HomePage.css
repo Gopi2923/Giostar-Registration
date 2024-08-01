@@ -149,12 +149,16 @@
 }
 
 .date-picker-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin: 20px 0;
+  justify-content: center;
 }
 
-.react-datepicker-wrapper {
-  display: block;
-  margin: 0 auto;
+.date-picker-container .react-datepicker__input-container input:focus {
+  outline: none;
+  border-color: #007bff;
 }
 
 .react-datepicker__input-container input {
