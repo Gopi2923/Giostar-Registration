@@ -3,7 +3,8 @@ import './HomePage.css';
 import logo from '../../assets/images/logo-01.png';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { FaDownload, FaRegCalendarAlt } from 'react-icons/fa';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCalendarDays, faCircleDown  } from '@fortawesome/free-solid-svg-icons';
 import { TailSpin } from 'react-loader-spinner';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -195,7 +196,7 @@ const HomePage = () => {
               Loading <TailSpin color="#fff" height={24} width={24} />
             </div>
           ) : (
-            <><FaDownload /> Export Registrations</>
+            <><FontAwesomeIcon icon={faCircleDown} /> Export Registrations</>
           )}
         </button>
       </div>
@@ -206,7 +207,7 @@ const HomePage = () => {
           <span className="close" onClick={() => setModalIsOpen(false)}>&times;</span>
           <h2>Select a Date</h2>
           <div className="date-picker-container">
-          <FaRegCalendarAlt />
+          <FontAwesomeIcon icon={faCalendarDays} />
             <DatePicker
               selected={selectedDate}
               onChange={date => setSelectedDate(date)}

@@ -3,6 +3,9 @@ import axios from 'axios';
 import QRimage from '../../assets/images/qrcode.png';
 import { useNavigate } from 'react-router-dom';
 import './RegistrationPage.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
+
 
 const RegistrationPage = () => {
   const [formData, setFormData] = useState({
@@ -214,7 +217,7 @@ const RegistrationPage = () => {
             <span className="close" onClick={() => setShowModal(false)}>&times;</span>
             <h2>Payment is done</h2>
             <p>Thank you for your registration!</p>
-            <div className="success-icon">&#10004;</div>
+            <div className="success-icon"><FontAwesomeIcon icon={faCircleCheck} /> </div>
           </div>
         </div>
       )}
