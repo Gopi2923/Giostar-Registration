@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import styled, { keyframes } from 'styled-components';
 import './HomePage.css';
 import logo from '../../assets/images/logo-01.png';
 import { useNavigate } from 'react-router-dom';
@@ -15,31 +14,6 @@ import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import ParticlesBg from 'particles-bg';
-
-// Keyframes for animations
-const pulse = keyframes`
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-  }
-`;
-
-// Styled components with animations
-const RegisterButton = styled.button`
-  padding: 10px 20px;
-  color: #fff;
-  background-color: #007bff;
-  border: none;
-  cursor: pointer;
-  outline: none;
-  transition: all 0.3s ease;
-  animation: ${pulse} 2s infinite;
-`;
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -214,7 +188,7 @@ const HomePage = () => {
         <img src={logo} alt="Hospital Logo" className="logo" />
         <h4 className="title">Effortless Patient Registration</h4>
         <p className="subtitle">"From Registration to Care: Enhancing the Patient Journey"</p>
-        <RegisterButton className="register-btn" onClick={handleButtonClick}>Register</RegisterButton>
+        <button className="register-btn" onClick={handleButtonClick}>Register</button>
         <button className='export-btn' onClick={() => setModalIsOpen(true)}>
           {(isLoadingExcel || isLoadingPDF) ? (
             <div className="spinner-container">

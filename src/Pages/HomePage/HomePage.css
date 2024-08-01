@@ -50,8 +50,22 @@
   cursor: pointer;
   margin: 10px 5px;
   text-decoration: none;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  animation: pulse 2s infinite;
 }
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 .export-btn {
   display: flex;
   align-items: center;
