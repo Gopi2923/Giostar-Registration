@@ -37,6 +37,8 @@ const HomePage = () => {
     { label: 'Patient ID', value: 'patientId' },
   ];
 
+  const allHeadersOption = { label: 'All', value: 'all' };
+
   const handleButtonClick = () => {
     navigate('./register');
   };
@@ -50,6 +52,18 @@ const HomePage = () => {
   const closeModal = () => {
     setModalIsOpen(false);
     resetModalState();
+  };
+
+  const handleHeaderChange = (selected) => {
+    if (selected.some(option => option.value === 'all')) {
+      if (selected.length === allHeaders.length + 1) {
+        setSelectedHeaders([]);
+      } else {
+        setSelectedHeaders(allHeaders);
+      }
+    } else {
+      setSelectedHeaders(selected);
+    }
   };
 
   const fetchRegistrations = async (fileFormat) => {
@@ -89,7 +103,7 @@ const HomePage = () => {
         } else if (fileFormat === 'pdf') {
           exportToPDF(filteredData);
         }
-        setModalIsOpen(false);
+        closeModal();
       }
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Error fetching registrations';
@@ -98,9 +112,7 @@ const HomePage = () => {
     } finally {
       setIsLoadingExcel(false);
       setIsLoadingPDF(false);
-      setFromDate(null);
-      setToDate(null);
-      setSelectedHeaders([null]);
+      toast.success("Downloaded Successfully.");
     }
   };
 
@@ -201,13 +213,13 @@ const HomePage = () => {
             />
           </div>
           <div className="custom-headers">
-            <h2>Select Headers</h2>
+            <h2>Select Fields</h2>
             <Select
               isMulti
-              options={allHeaders}
+              options={[allHeadersOption, ...allHeaders]}
               className="basic-multi-select"
               classNamePrefix="select"
-              onChange={setSelectedHeaders}
+              onChange={handleHeaderChange}
               value={selectedHeaders}
             />
           </div>

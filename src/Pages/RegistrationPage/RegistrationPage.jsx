@@ -112,6 +112,7 @@ const RegistrationPage = () => {
                 <h2>Scan to Pay</h2>
                 <img src={QRimage} alt="QR" width={'280px'} height={'250px'} />
                 <button onClick={handlePaymentConfirm} type='submit'>Confirm Payment</button>
+                <p>* Note: Please ensure payment fee amount with frontdesk person.</p>
               </div>
             ) : (
               responseData && (
