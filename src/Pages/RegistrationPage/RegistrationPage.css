@@ -180,7 +180,7 @@ button[type="button"]:hover {
   padding: 20px;
   border-radius: 10px;
   width: 600px;
-  height: 280px;
+  height: auto;
   font-size: 25px;
   text-align: center;
   position: relative;

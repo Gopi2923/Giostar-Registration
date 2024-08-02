@@ -4,7 +4,7 @@ import logo from '../../assets/images/logo-01.png';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarDays, faCircleDown  } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarDays, faCircleDown } from '@fortawesome/free-solid-svg-icons';
 import { TailSpin } from 'react-loader-spinner';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -15,22 +15,51 @@ import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import ParticlesBg from 'particles-bg';
+import Select from 'react-select';
 
 const HomePage = () => {
   const navigate = useNavigate();
   const [registrations, setRegistrations] = useState([]);
   const [isLoadingExcel, setIsLoadingExcel] = useState(false);
   const [isLoadingPDF, setIsLoadingPDF] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(null);
+  const [fromDate, setFromDate] = useState(null);
+  const [toDate, setToDate] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [selectedHeaders, setSelectedHeaders] = useState([]);
+
+  const allHeaders = [
+    { label: 'Name', value: 'firstName' },
+    { label: 'Age', value: 'age' },
+    { label: 'Gender', value: 'gender' },
+    { label: 'Email', value: 'email' },
+    { label: 'Mobile Number', value: 'mobile_number' },
+    { label: 'Date of Registration', value: 'createdAt' },
+    { label: 'Patient ID', value: 'patientId' },
+  ];
 
   const handleButtonClick = () => {
     navigate('./register');
   };
 
+  const resetModalState = () => {
+    setFromDate(null);
+    setToDate(null);
+    setSelectedHeaders([]);
+  };
+
+  const closeModal = () => {
+    setModalIsOpen(false);
+    resetModalState();
+  };
+
   const fetchRegistrations = async (fileFormat) => {
-    if (!selectedDate) {
-      toast.error("Please select a date.");
+    if (!fromDate || !toDate) {
+      toast.error("Please select both from and to dates.");
+      return;
+    }
+
+    if (selectedHeaders.length === 0) {
+      toast.error("Please select at least one header.");
       return;
     }
 
@@ -41,9 +70,11 @@ const HomePage = () => {
     }
 
     try {
-      const formattedDate = format(selectedDate, 'yyyy/MM/dd');
+      const formattedFromDate = format(fromDate, 'yyyy/MM/dd');
+      const formattedToDate = format(toDate, 'yyyy/MM/dd');
       const response = await axios.post('https://giostar.onrender.com/registration/getAll', {
-        createdAt: formattedDate
+        fromDate: formattedFromDate,
+        toDate: formattedToDate
       });
 
       const data = response.data.data;
@@ -67,20 +98,17 @@ const HomePage = () => {
     } finally {
       setIsLoadingExcel(false);
       setIsLoadingPDF(false);
-      setSelectedDate(null);
+      setFromDate(null);
+      setToDate(null);
+      setSelectedHeaders([null]);
     }
   };
 
   const exportToCSV = (data) => {
-    const headers = [
-      { label: 'Name', key: 'firstName' },
-      { label: 'Age', key: 'age' },
-      { label: 'Gender', key: 'gender' },
-      { label: 'Email', key: 'email' },
-      { label: 'Mobile Number', key: 'mobile_number' },
-      { label: 'Date of Registration', key: 'createdAt' },
-      { label: 'Patient ID', key: 'patientId' },
-    ];
+    const headers = selectedHeaders.map(header => ({
+      label: header.label,
+      key: header.value
+    }));
 
     const worksheetData = data.map(item => {
       const row = {};
@@ -94,7 +122,6 @@ const HomePage = () => {
       return row;
     });
 
-    // Add the headers to the worksheet data
     worksheetData.unshift(headers.reduce((acc, header) => {
       acc[header.label] = header.label;
       return acc;
@@ -104,72 +131,21 @@ const HomePage = () => {
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Registrations');
 
-    worksheet['!cols'] = [
-      { wpx: 150 }, // Increase width for 'Name'
-      { wpx: 50 },
-      { wpx: 100 },
-      { wpx: 200 },
-      { wpx: 150 },
-      { wpx: 150 },
-      { wpx: 150 },
-    ];
-
-    // Apply alignment to all cells
-    const range = XLSX.utils.decode_range(worksheet['!ref']);
-    for (let R = range.s.r; R <= range.e.r; ++R) {
-      for (let C = range.s.c; C <= range.e.c; ++C) {
-        const cell_address = { c: C, r: R };
-        const cell_ref = XLSX.utils.encode_cell(cell_address);
-        if (!worksheet[cell_ref]) continue;
-        worksheet[cell_ref].s = {
-          alignment: {
-            vertical: 'center',
-            horizontal: 'center'
-          }
-        };
-      }
-    }
-
-    // Setting headers style
-    headers.forEach((header, index) => {
-      const cell_address = { c: index, r: 0 };
-      const cell_ref = XLSX.utils.encode_cell(cell_address);
-      if (worksheet[cell_ref]) {
-        worksheet[cell_ref].s = {
-          alignment: {
-            vertical: 'center',
-            horizontal: 'center'
-          },
-          font: {
-            bold: true
-          }
-        };
-      }
-    });
+    worksheet['!cols'] = headers.map(() => ({ wpx: 150 }));
 
     XLSX.writeFile(workbook, 'registrations.xlsx');
   };
 
   const exportToPDF = (data) => {
     const doc = new jsPDF();
-    const headers = [
-      "Name",
-      "Age",
-      "Gender",
-      "Email",
-      "Mobile Number",
-      "Date of Registration",
-      "Patient ID"
-    ];
-    const rows = data.map(item => [
-      item.firstName,
-      item.age,
-      item.gender,
-      item.email,
-      item.mobile_number,
-      format(new Date(item.createdAt), 'dd-MM-yyyy'),
-      item.patientId
-    ]);
+    const headers = selectedHeaders.map(header => header.label);
+    const rows = data.map(item => selectedHeaders.map(header => {
+      if (header.value === 'createdAt') {
+        return format(new Date(item[header.value]), 'dd-MM-yyyy');
+      } else {
+        return item[header.value];
+      }
+    }));
 
     doc.autoTable({
       head: [headers],
@@ -204,15 +180,35 @@ const HomePage = () => {
 
       <div id="myModal" className="modal" style={{ display: modalIsOpen ? 'block' : 'none' }}>
         <div className="modal-content">
-          <span className="close" onClick={() => setModalIsOpen(false)}>&times;</span>
-          <h2>Select a Date</h2>
+          <span className="close" onClick={closeModal}>&times;</span>
+          <h2>Select Date Range</h2>
           <div className="date-picker-container">
-          <FontAwesomeIcon icon={faCalendarDays} />
+            <label className="date-picker-label">From:</label>
+            <FontAwesomeIcon icon={faCalendarDays} />
             <DatePicker
-              selected={selectedDate}
-              onChange={date => setSelectedDate(date)}
-              placeholderText="Select a date"
+              selected={fromDate}
+              onChange={date => setFromDate(date)}
+              placeholderText="Select from date"
               dateFormat="yyyy/MM/dd"
+            />
+            <label className="date-picker-label">To:</label>
+            <FontAwesomeIcon icon={faCalendarDays} />
+            <DatePicker
+              selected={toDate}
+              onChange={date => setToDate(date)}
+              placeholderText="Select to date"
+              dateFormat="yyyy/MM/dd"
+            />
+          </div>
+          <div className="custom-headers">
+            <h2>Select Headers</h2>
+            <Select
+              isMulti
+              options={allHeaders}
+              className="basic-multi-select"
+              classNamePrefix="select"
+              onChange={setSelectedHeaders}
+              value={selectedHeaders}
             />
           </div>
           <div className="export-buttons">
