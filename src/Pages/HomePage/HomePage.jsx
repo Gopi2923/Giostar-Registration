@@ -43,6 +43,10 @@ const HomePage = () => {
     navigate('./register');
   };
 
+  const handleFollowupBtnClick = () => {
+    navigate('./followup');
+  }
+
   const resetModalState = () => {
     setFromDate(null);
     setToDate(null);
@@ -179,7 +183,7 @@ const HomePage = () => {
         <p className="subtitle">"From Registration to Care: Enhancing the Patient Journey"</p>
         <div className="button-container">
           <button className="register-btn" onClick={handleButtonClick}>New Patient Register</button>
-          <button className="register-btn">Existing Patient</button>
+          <button className="register-btn" onClick={handleFollowupBtnClick}>Existing Patient</button>
         </div>  
           <button className='export-btn' onClick={() => setModalIsOpen(true)}>
             {(isLoadingExcel || isLoadingPDF) ? (
