@@ -177,16 +177,19 @@ const HomePage = () => {
         <img src={logo} alt="Hospital Logo" className="logo" />
         <h4 className="title">Effortless Patient Registration</h4>
         <p className="subtitle">"From Registration to Care: Enhancing the Patient Journey"</p>
-        <button className="register-btn" onClick={handleButtonClick}>Register</button>
-        <button className='export-btn' onClick={() => setModalIsOpen(true)}>
-          {(isLoadingExcel || isLoadingPDF) ? (
-            <div className="spinner-container">
-              Loading <TailSpin color="#fff" height={24} width={24} />
-            </div>
-          ) : (
-            <><FontAwesomeIcon icon={faCircleDown} /> Export Registrations</>
-          )}
-        </button>
+        <div className="button-container">
+          <button className="register-btn" onClick={handleButtonClick}>New Patient Register</button>
+          <button className="register-btn">Existing Patient</button>
+        </div>  
+          <button className='export-btn' onClick={() => setModalIsOpen(true)}>
+            {(isLoadingExcel || isLoadingPDF) ? (
+              <div className="spinner-container">
+                Loading <TailSpin color="#fff" height={24} width={24} />
+              </div>
+            ) : (
+              <><FontAwesomeIcon icon={faCircleDown} /> Export Registrations</>
+            )}
+          </button>
       </div>
       <div className="background-img"></div>
 
