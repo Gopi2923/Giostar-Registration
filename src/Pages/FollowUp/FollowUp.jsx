@@ -90,19 +90,20 @@ const FollowUp = () => {
           </div>
         ) : (
           <div className="patient-list">
-            <h2>Patient List</h2>
-            <ul>
-              {patients.data.map(patient => (
-                <li key={patient._id} onClick={() => handlePatientClick(patient)}>
-                  {`${patient.firstName} ${patient.lastname}`} - {patient.mobile_number}
-                  <FontAwesomeIcon icon={faArrowRight} />
-                </li>
-              ))}
-            </ul>
-          </div>
-        )
-      )}
-    </div>
+          <h2>Patients List</h2>
+          <ul>
+            {patients.data.map(patient => (
+              <li key={patient._id} onClick={() => handlePatientClick(patient)}>
+                <div className="patient-name">Patient Name : {`${patient.firstName} ${patient.lastname}`}</div>
+                {/* <div className="patient-number">{patient.mobile_number}</div> */}
+                <FontAwesomeIcon icon={faArrowRight} beat size="2xl" style={{color: "#B197FC",}} />
+              </li>
+            ))}
+          </ul>
+        </div>
+      )
+    )}
+  </div>
   );
 };
 
