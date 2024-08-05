@@ -73,4 +73,53 @@
   .patient-list .patient-number {
     color: #666;
   }
+  .patients-details {
+    margin-top: 150px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 15px;
+  }
   
+  .patients-details h1 {
+    margin-bottom: 20px;
+    color: #5cb85c;
+    font-family: 'Nunito', sans-serif;
+    font-size: 45px;
+  }
+  
+  .patient-details-list p {
+    margin: 8px 0;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1em;
+    color: #555;
+    font-size: 35px;
+  }
+  
+  .patient-details-list p strong {
+    color: #333;
+  }
+  
+  .button-container {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .back-button, .continue-button {
+    padding: 10px 20px;
+    font-size: 18px;
+    font-family: 'Nunito', sans-serif;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .back-button {
+    background-color: #d9534f;
+    color: white;
+  }
+  
+  .continue-button {
+    background-color: #5cb85c;
+    color: white;
+  }
