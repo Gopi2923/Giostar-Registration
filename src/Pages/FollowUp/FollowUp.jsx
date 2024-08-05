@@ -4,22 +4,20 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import qrimg from '../../assets/images/qrcode.png';
 
 const FollowUp = () => {
-  const [formData, setFormData] = useState({
-    mobile_number: "",
-  });
+  const [formData, setFormData] = useState({ mobile_number: "" });
   const [patients, setPatients] = useState([]);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [isVerified, setIsVerified] = useState(null);
   const [showConsultationForm, setShowConsultationForm] = useState(false);
-  const [consultationData, setConsultationData] = useState({
-    doctorName: "",
-    reason: "",
-    fees: "",
-  });
+  const [consultationData, setConsultationData] = useState({ doctorName: "", reason: "", fees: "" });
+  const [showModal, setShowModal] = useState(false);
+  const [modalContent, setModalContent] = useState('');
+  const [paymentPending, setPaymentPending] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -27,16 +25,10 @@ const FollowUp = () => {
     if (name === 'mobile_number') {
       const cleanedValue = value.replace(/\D/g, '');
       if (cleanedValue.length <= 10) {
-        setFormData({
-          ...formData,
-          [name]: cleanedValue,
-        });
+        setFormData({ ...formData, [name]: cleanedValue });
       }
     } else {
-      setConsultationData({
-        ...consultationData,
-        [name]: value,
-      });
+      setConsultationData({ ...consultationData, [name]: value });
     }
   };
 
@@ -76,27 +68,51 @@ const FollowUp = () => {
 
   const handleConsultationSubmit = async (e) => {
     e.preventDefault();
+    if (consultationData.fees === "No fee" || consultationData.fees.trim() === "") {
+      await submitConsultation();
+    } else {
+      setPaymentPending(true);
+      setModalContent('Please complete the payment.');
+      setShowModal(true);
+    }
+  };
+
+  const submitConsultation = async () => {
     const payload = {
       patientId: selectedPatient.patientId,
       patientRef: selectedPatient._id,
       reason: consultationData.reason,
-      fees: isVerified ? "No fee" : consultationData.fees,
-      status: isVerified ? "Paid" : "Yet to pay",
-      type: isVerified ? "Follow-Up" : "Consultation",
+      fees: consultationData.fees,
+      status: consultationData.fees === "No fee" || consultationData.fees.trim() === "" ? "Paid" : "Yet to pay",
+      type: consultationData.fees === "No fee" || consultationData.fees.trim() === "" ? "Follow-Up" : "Consultation",
       doctorName: consultationData.doctorName,
       dateOfConsultation: new Date().toISOString().split('T')[0],
     };
 
     try {
       const response = await axios.post('https://giostar.onrender.com/consultation/add', payload);
-      if (response.data.success) {
-        alert('Consultation added successfully');
-        navigate('/');
+      if (response.data._id) {
+        setModalContent('Consultation booking done.');
+        setShowModal(true);
+        setShowConsultationForm(false);
       } else {
         alert('Error adding consultation');
       }
     } catch (error) {
       console.error('Error adding consultation:', error);
+      alert('Error adding consultation');
+    }
+  };
+
+  const confirmPayment = async () => {
+    await submitConsultation();
+    setPaymentPending(false);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    if (!paymentPending) {
+      navigate('/');
     }
   };
 
@@ -135,21 +151,20 @@ const FollowUp = () => {
           </div>
         ) : (
           <div className="patients-details">
-  <h1>Patient Details</h1>
-  <div className="patient-details-list">
-    <p><strong>Name:</strong> {`${selectedPatient.firstName} ${selectedPatient.lastname}`}</p>
-    <p><strong>Mobile Number:</strong> {selectedPatient.mobile_number}</p>
-    <p><strong>Email:</strong> {selectedPatient.email}</p>
-    <p><strong>Age:</strong> {selectedPatient.age}</p>
-    <p><strong>Gender:</strong> {selectedPatient.gender}</p>
-    <p><strong>Date of Registration:</strong> {new Date(selectedPatient.createdAt).toLocaleDateString()}</p>
-  </div>
-  <div className="button-container">
-    <button onClick={() => setSelectedPatient(null)} className='back-button'>Back to List</button>
-    <button onClick={handleContinue} className='continue-button'>Continue</button>
-  </div>
-</div>
-
+            <h1>Patient Details</h1>
+            <div className="patient-details-list">
+              <p><strong>Name:</strong> {`${selectedPatient.firstName} ${selectedPatient.lastname}`}</p>
+              <p><strong>Mobile Number:</strong> {selectedPatient.mobile_number}</p>
+              <p><strong>Email:</strong> {selectedPatient.email}</p>
+              <p><strong>Age:</strong> {selectedPatient.age}</p>
+              <p><strong>Gender:</strong> {selectedPatient.gender}</p>
+              <p><strong>Date of Registration:</strong> {new Date(selectedPatient.createdAt).toLocaleDateString()}</p>
+            </div>
+            <div className="button-container">
+              <button onClick={() => setSelectedPatient(null)} className='back-button'>Back to List</button>
+              <button onClick={handleContinue} className='continue-button'>Continue</button>
+            </div>
+          </div>
         )
       ) : (
         patients.length === 0 ? (
@@ -181,6 +196,20 @@ const FollowUp = () => {
             </ul>
           </div>
         )
+      )}
+      {showModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <p>{modalContent}</p>
+            {paymentPending && consultationData.fees.trim() !== "No fee" && consultationData.fees.trim() !== "" && (
+              <div>
+                <img src={qrimg} width={350} alt="QR Code for Payment" />
+                <button onClick={confirmPayment}>Confirm Payment</button>
+              </div>
+            )}
+            {!paymentPending && <button onClick={closeModal}>Close</button>}
+          </div>
+        </div>
       )}
     </div>
   );
