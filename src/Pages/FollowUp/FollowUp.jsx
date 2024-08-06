@@ -216,7 +216,7 @@ const FollowUp = () => {
               <div>
                 <img src={qrimg} width={350} alt="QR Code for Payment" />
                 <p>Payment Amount: {consultationData.fees}</p>
-                <button onClick={confirmPayment} type='submit'>Confirm Payment</button>
+                <button onClick={confirmPayment} type='submit' className='modal-content-btn'>Confirm Payment</button>
                 {/* <p>* Note: Please ensure payment fee amount with frontdesk person.</p> */}
               </div>
             )}
