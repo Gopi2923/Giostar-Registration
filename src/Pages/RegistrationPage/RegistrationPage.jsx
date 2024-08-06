@@ -21,6 +21,7 @@ const RegistrationPage = () => {
     state: '',
     pincode: '',
     dateOfRegistration: new Date().toISOString().split('T')[0],
+    doctorName: '',
     reason: '',
     typeOfVisit: 'Consultation',
   });
@@ -33,7 +34,7 @@ const RegistrationPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'firstName' || name === 'middleName' || name === 'lastName' || name === 'city' || name === 'state' || name === 'category' || name === 'reason') {
+    if (name === 'firstName' || name === 'middleName' || name === 'lastName' || name === 'city' || name === 'state' || name === 'category' || name === 'reason' || name === 'doctorName') {
       const cleanedValue = value.replace(/[^a-zA-Z\s]/g, ''); // Remove non-letter characters
       setFormData({
         ...formData,
@@ -188,12 +189,16 @@ const RegistrationPage = () => {
               </div>
               <div className="form-group">
                 <label htmlFor="category">Pincode</label>
-                <input type="number" id="pincode" name="pincode"  value={formData.pincode} onChange={handleChange}/>
+                <input type="text" id="pincode" name="pincode"  value={formData.pincode} onChange={handleChange}/>
               </div>
               <div className="form-group">
                 <label htmlFor="date">Date of Registration <span className="required">*</span></label>
                 <input type="date" id="date" name="dateOfRegistration" value={formData.dateOfRegistration} onChange={handleChange} 
                     style={{ backgroundColor: '#f0f0f0', cursor: 'not-allowed' }} readOnly required />
+              </div>
+              <div className="form-group">
+                <label htmlFor="doctorName">Doctor Name <span className="required">*</span></label>
+                <input id="doctorName" name="doctorName" value={formData.doctorName} onChange={handleChange} required></input>
               </div>
               <div className="form-group">
                 <label htmlFor="reason">Reason for Visit</label>

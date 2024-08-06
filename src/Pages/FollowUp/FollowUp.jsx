@@ -5,6 +5,8 @@ import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight, faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import qrimg from '../../assets/images/qrcode.png';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const FollowUp = () => {
   const [formData, setFormData] = useState({ mobile_number: "" });
@@ -18,6 +20,7 @@ const FollowUp = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalContent, setModalContent] = useState('');
   const [paymentPending, setPaymentPending] = useState(false);
+  const [consultationType, setConsultationType] = useState("");
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -50,10 +53,12 @@ const FollowUp = () => {
       setPatients(response.data);
     } catch (error) {
       console.error('Error fetching patients:', error);
+      toast.error('Please Enter Registered Number.');
     } finally {
       setIsSearching(false);
     }
   };
+  
 
   const handlePatientClick = async (patient) => {
     setIsVerifying(true);
@@ -73,6 +78,16 @@ const FollowUp = () => {
   };
 
   const handleContinue = () => {
+    setShowModal(true);
+    setModalContent('Please select consultation type.');
+  };
+
+  const handleConsultationTypeSelection = (type) => {
+    setConsultationType(type);
+    setShowModal(false);
+    if (type === 'Follow-Up') {
+      setConsultationData({ ...consultationData, doctorName: selectedPatient.doctorName });
+    }
     setShowConsultationForm(true);
   };
 
@@ -94,7 +109,7 @@ const FollowUp = () => {
       reason: consultationData.reason,
       fees: consultationData.fees,
       status: consultationData.fees === "No fee" || consultationData.fees.trim() === "" ? "Paid" : "Yet to pay",
-      type: consultationData.fees === "No fee" || consultationData.fees.trim() === "" ? "Follow-Up" : "Consultation",
+      type: consultationType,
       doctorName: consultationData.doctorName,
       dateOfConsultation: new Date().toISOString().split('T')[0],
     };
@@ -144,7 +159,7 @@ const FollowUp = () => {
               </div>
               <div className="form-group">
                 <label htmlFor="doctorName">Doctor Name  <span className="required">*</span></label>
-                <input type="text" id="doctorName" name="doctorName" value={consultationData.doctorName} onChange={handleChange} required />
+                <input type="text" id="doctorName" name="doctorName" value={consultationData.doctorName} onChange={handleChange} disabled={consultationType === 'Follow-Up'} required />
               </div>
               <div className="form-group">
                 <label htmlFor="reason">Reason</label>
@@ -207,24 +222,33 @@ const FollowUp = () => {
           </div>
         )
       )}
-      {showModal && (
-        <div className="modal">
-          <div className="modal-content">
-          <span className="close" onClick={closeModal}>&times;</span>
-            <p>{modalContent}</p>
-            {paymentPending && consultationData.fees.trim() !== "No fee" && consultationData.fees.trim() !== "" && (
-              <div>
-                <img src={qrimg} width={350} alt="QR Code for Payment" />
-                <p>Payment Amount: {consultationData.fees}</p>
-                <button onClick={confirmPayment} type='submit' className='modal-content-btn'>Confirm Payment</button>
-                {/* <p>* Note: Please ensure payment fee amount with frontdesk person.</p> */}
-              </div>
-            )}
-             
-            {!paymentPending && <div className="success-icon"><FontAwesomeIcon icon={faCircleCheck} /> </div>}
-          </div>
+    {showModal && (
+  <div className="modal">
+    <div className="modal-content">
+      <span className="close" onClick={closeModal}>&times;</span>
+      <p>{modalContent}</p>
+      {paymentPending && consultationData.fees.trim() !== "No fee" && consultationData.fees.trim() !== "" && (
+        <div>
+          <img src={qrimg} width={350} alt="QR Code for Payment" />
+          <p>Payment Amount: {consultationData.fees}</p>
+          <button onClick={confirmPayment} type='submit' className='modal-content-btn'>Confirm Payment</button>
         </div>
       )}
+      {!paymentPending && consultationType === "" && (
+        <div className="button-containers">
+          <button onClick={() => handleConsultationTypeSelection('Follow-Up')} className='modal-content-btn'>Follow-Up</button>
+          <button onClick={() => handleConsultationTypeSelection('Consultation')} className='modal-content-btn'>Consultation</button>
+        </div>
+      )}
+      {!paymentPending && consultationType !== "" && (
+        <div className="success-icon">
+          <FontAwesomeIcon icon={faCircleCheck} />
+        </div>
+      )}
+    </div>
+  </div>
+)}
+<ToastContainer />
     </div>
   );
 };
