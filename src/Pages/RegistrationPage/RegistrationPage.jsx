@@ -22,7 +22,7 @@ const RegistrationPage = () => {
     pincode: '',
     dateOfRegistration: new Date().toISOString().split('T')[0],
     reason: '',
-    typeOfVisit: 'consultation',
+    typeOfVisit: 'Consultation',
   });
   const navigate = useNavigate()
 
