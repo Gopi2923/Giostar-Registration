@@ -168,7 +168,7 @@ const RegistrationPage = () => {
               </div>
               <div className="form-group">
                 <label htmlFor="email">Email ID <span className="required">*</span></label>
-                <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} />
+                <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} required/>
               </div>
               <div className="form-group">
                 <label htmlFor="phone">Mobile Number <span className="required">*</span></label>
