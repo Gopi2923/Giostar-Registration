@@ -3,7 +3,7 @@ import './FollowUp.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRight, faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import qrimg from '../../assets/images/qrcode.png';
 
 const FollowUp = () => {
@@ -26,6 +26,16 @@ const FollowUp = () => {
       const cleanedValue = value.replace(/\D/g, '');
       if (cleanedValue.length <= 10) {
         setFormData({ ...formData, [name]: cleanedValue });
+      }
+    } else if (name === 'doctorName') {
+      const alphaRegex = /^[A-Za-z\s]+$/;
+      if (alphaRegex.test(value) || value === '') {
+        setConsultationData({ ...consultationData, [name]: value });
+      }
+    } else if (name === 'fees') {
+      const numericRegex = /^\d*$/;
+      if (numericRegex.test(value)) {
+        setConsultationData({ ...consultationData, [name]: value });
       }
     } else {
       setConsultationData({ ...consultationData, [name]: value });
@@ -133,16 +143,16 @@ const FollowUp = () => {
                 <input type="text" id="dateOfConsultation" value={new Date().toLocaleDateString()} disabled />
               </div>
               <div className="form-group">
-                <label htmlFor="doctorName">Doctor Name</label>
+                <label htmlFor="doctorName">Doctor Name  <span className="required">*</span></label>
                 <input type="text" id="doctorName" name="doctorName" value={consultationData.doctorName} onChange={handleChange} required />
               </div>
               <div className="form-group">
                 <label htmlFor="reason">Reason</label>
-                <textarea id="reason" name="reason" value={consultationData.reason} onChange={handleChange} required></textarea>
+                <textarea id="reason" name="reason" value={consultationData.reason} onChange={handleChange}></textarea>
               </div>
               {isVerified === false && (
                 <div className="form-group">
-                  <label htmlFor="fees">Fees</label>
+                  <label htmlFor="fees">Fees <span className="required">*</span></label>
                   <input type="text" id="fees" name="fees" value={consultationData.fees} onChange={handleChange} required />
                 </div>
               )}
@@ -200,14 +210,18 @@ const FollowUp = () => {
       {showModal && (
         <div className="modal">
           <div className="modal-content">
+          <span className="close" onClick={closeModal}>&times;</span>
             <p>{modalContent}</p>
             {paymentPending && consultationData.fees.trim() !== "No fee" && consultationData.fees.trim() !== "" && (
               <div>
                 <img src={qrimg} width={350} alt="QR Code for Payment" />
-                <button onClick={confirmPayment}>Confirm Payment</button>
+                <p>Payment Amount: {consultationData.fees}</p>
+                <button onClick={confirmPayment} type='submit'>Confirm Payment</button>
+                {/* <p>* Note: Please ensure payment fee amount with frontdesk person.</p> */}
               </div>
             )}
-            {!paymentPending && <button onClick={closeModal}>Close</button>}
+             
+            {!paymentPending && <div className="success-icon"><FontAwesomeIcon icon={faCircleCheck} /> </div>}
           </div>
         </div>
       )}
