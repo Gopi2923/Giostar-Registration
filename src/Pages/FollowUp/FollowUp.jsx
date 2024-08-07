@@ -21,6 +21,8 @@ const FollowUp = () => {
   const [modalContent, setModalContent] = useState('');
   const [paymentPending, setPaymentPending] = useState(false);
   const [consultationType, setConsultationType] = useState("");
+  const [consultationResponse, setConsultationResponse] = useState(null); // Add state for consultation response
+
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -58,23 +60,10 @@ const FollowUp = () => {
       setIsSearching(false);
     }
   };
-  
 
   const handlePatientClick = async (patient) => {
-    setIsVerifying(true);
-    try {
-      const response = await axios.get(`https://giostar.onrender.com/registration/getRegistration/${patient._id}`);
-      if (response.data.success) {
-        setSelectedPatient(patient);
-        setIsVerified(response.data.data);
-      } else {
-        alert('Patient registration verification failed.');
-      }
-    } catch (error) {
-      console.error('Error verifying patient registration:', error);
-    } finally {
-      setIsVerifying(false);
-    }
+    setSelectedPatient(patient);
+    setIsVerified(null);
   };
 
   const handleContinue = () => {
@@ -82,13 +71,36 @@ const FollowUp = () => {
     setModalContent('Please select consultation type.');
   };
 
-  const handleConsultationTypeSelection = (type) => {
+  const handleConsultationTypeSelection = async (type) => {
     setConsultationType(type);
     setShowModal(false);
-    if (type === 'Follow-Up') {
-      setConsultationData({ ...consultationData, doctorName: selectedPatient.doctorName });
+    setIsVerifying(true);
+
+    try {
+      const response = await axios.get(`https://giostar.onrender.com/registration/getRegistration/${selectedPatient._id}`);
+      const isFollowUp = response.data.data;
+
+      if (isFollowUp) {
+        if (type === 'Follow-Up') {
+          setConsultationData({ ...consultationData, doctorName: selectedPatient.doctorName, fees: 'No fee' });
+        } else {
+          setConsultationData({ ...consultationData, doctorName: '', fees: '' });
+        }
+      } else {
+        if (type === 'Follow-Up') {
+          setConsultationData({ ...consultationData, doctorName: selectedPatient.doctorName, fees: '' });
+        } else {
+          setConsultationData({ ...consultationData, doctorName: '', fees: '' });
+        }
+      }
+
+      setIsVerified(isFollowUp);
+    } catch (error) {
+      console.error('Error checking follow-up status:', error);
+    } finally {
+      setIsVerifying(false);
+      setShowConsultationForm(true);
     }
-    setShowConsultationForm(true);
   };
 
   const handleConsultationSubmit = async (e) => {
@@ -117,6 +129,7 @@ const FollowUp = () => {
     try {
       const response = await axios.post('https://giostar.onrender.com/consultation/add', payload);
       if (response.data._id) {
+        setConsultationResponse(response.data); // Store the response data
         setModalContent('Consultation booking done.');
         setShowModal(true);
         setShowConsultationForm(false);
@@ -136,119 +149,139 @@ const FollowUp = () => {
 
   const closeModal = () => {
     setShowModal(false);
-    if (!paymentPending) {
-      navigate('/');
-    }
   };
 
   return (
     <div className='registration-container'>
       <button className="back-btn" onClick={() => navigate('/')}>Back to Home</button>
-      {selectedPatient ? (
-        showConsultationForm ? (
-          <div className="registration-form">
-            <h2>Consultation Form</h2>
-            <form onSubmit={handleConsultationSubmit}>
-              <div className="form-group">
-                <label htmlFor="patientName">Patient Name</label>
-                <input type="text" id="patientName" value={`${selectedPatient.firstName} ${selectedPatient.lastname}`} disabled />
-              </div>
-              <div className="form-group">
-                <label htmlFor="dateOfConsultation">Date of Consultation</label>
-                <input type="text" id="dateOfConsultation" value={new Date().toLocaleDateString()} disabled />
-              </div>
-              <div className="form-group">
-                <label htmlFor="doctorName">Doctor Name  <span className="required">*</span></label>
-                <input type="text" id="doctorName" name="doctorName" value={consultationData.doctorName} onChange={handleChange} disabled={consultationType === 'Follow-Up'} required />
-              </div>
-              <div className="form-group">
-                <label htmlFor="reason">Reason</label>
-                <textarea id="reason" name="reason" value={consultationData.reason} onChange={handleChange}></textarea>
-              </div>
-              {isVerified === false && (
-                <div className="form-group">
-                  <label htmlFor="fees">Fees <span className="required">*</span></label>
-                  <input type="text" id="fees" name="fees" value={consultationData.fees} onChange={handleChange} required />
-                </div>
-              )}
-              <button type="submit">Submit</button>
-            </form>
-          </div>
-        ) : (
-          <div className="patients-details">
-            <h1>Patient Details</h1>
-            <div className="patient-details-list">
-              <p><strong>Name:</strong> {`${selectedPatient.firstName} ${selectedPatient.lastname}`}</p>
-              <p><strong>Mobile Number:</strong> {selectedPatient.mobile_number}</p>
-              <p><strong>Email:</strong> {selectedPatient.email}</p>
-              <p><strong>Age:</strong> {selectedPatient.age}</p>
-              <p><strong>Gender:</strong> {selectedPatient.gender}</p>
-              <p><strong>Date of Registration:</strong> {new Date(selectedPatient.createdAt).toLocaleDateString()}</p>
-            </div>
-            <div className="button-container">
-              <button onClick={() => setSelectedPatient(null)} className='back-button'>Back to List</button>
-              <button onClick={handleContinue} className='continue-button'>Continue</button>
-            </div>
-          </div>
-        )
+      {consultationResponse ? (
+        <div className="booking-details">
+          <h1>Consultation Details</h1>
+          <div className="booking-details-list">
+          <p><strong>Thank you for booking!</strong></p>
+          <p><strong>Patient ID:</strong> {consultationResponse.patientId}</p>
+          <p><strong>Patient Name:</strong> {`${selectedPatient.firstName} ${selectedPatient.lastname}`}</p>
+          <p><strong>Doctor Name:</strong> {consultationResponse.doctorName}</p>
+          <p><strong>Reason:</strong> {consultationResponse.reason}</p>
+          <p><strong>Fees:</strong> {consultationResponse.fees}</p>
+          <p><strong>Date of Consultation:</strong> {new Date(consultationResponse.dateOfConsultation).toLocaleDateString()}</p>
+        </div>
+        </div>
       ) : (
-        patients.length === 0 ? (
-          <div className="registration-form">
-            <div className="header">
-              <i className="fas fa-hospital-alt"></i>
-              <h2>Patients Follow up & Consultation</h2>
+        selectedPatient ? (
+          showConsultationForm ? (
+            <div className="registration-form">
+              <h2>Consultation Form</h2>
+              <form onSubmit={handleConsultationSubmit}>
+                <div className="form-group">
+                  <label htmlFor="patientName">Patient Name</label>
+                  <input type="text" id="patientName" value={`${selectedPatient.firstName} ${selectedPatient.lastname}`} disabled />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="dateOfConsultation">Date of Consultation</label>
+                  <input type="text" id="dateOfConsultation" value={new Date().toLocaleDateString()} disabled />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="doctorName">Doctor Name  <span className="required">*</span></label>
+                  <input 
+                    type="text" 
+                    id="doctorName" 
+                    name="doctorName" 
+                    value={consultationData.doctorName} 
+                    onChange={handleChange} 
+                    disabled={(consultationType === 'Follow-Up' && isVerified) || (consultationType === 'Follow-Up' && !isVerified)} 
+                    required 
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="reason">Reason</label>
+                  <textarea id="reason" name="reason" value={consultationData.reason} onChange={handleChange}></textarea>
+                </div>
+                {(consultationType !== 'Follow-Up' || !isVerified) && (
+                  <div className="form-group">
+                    <label htmlFor="fees">Fees <span className="required">*</span></label>
+                    <input type="text" id="fees" name="fees" value={consultationData.fees} onChange={handleChange} required />
+                  </div>
+                )}
+                <button type="submit">Submit</button>
+              </form>
             </div>
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label htmlFor="phone">Enter Mobile Number <span className="required">*</span></label>
-                <input type="tel" id="phone" name="mobile_number" value={formData.mobile_number} onChange={handleChange} pattern="\d{10}" title="Please enter 10 digits" required />
+          ) : (
+            <div className="patients-details">
+              <h1>Patient Details</h1>
+              <div className="patient-details-list">
+                <p><strong>Name:</strong> {`${selectedPatient.firstName} ${selectedPatient.lastname}`}</p>
+                <p><strong>Mobile Number:</strong> {selectedPatient.mobile_number}</p>
+                <p><strong>Email:</strong> {selectedPatient.email}</p>
+                <p><strong>Age:</strong> {selectedPatient.age}</p>
+                <p><strong>Gender:</strong> {selectedPatient.gender}</p>
+                <p><strong>Date of Registration:</strong> {new Date(selectedPatient.createdAt).toLocaleDateString()}</p>
               </div>
-              <button type="submit" disabled={isSearching}>
-                {isSearching ? 'Searching...' : 'Submit'}
-              </button>
-            </form>
-          </div>
+              <div className="button-container">
+                <button onClick={() => setSelectedPatient(null)} className='back-button'>Back to List</button>
+                <button onClick={handleContinue} className='continue-button'>Continue</button>
+              </div>
+            </div>
+          )
         ) : (
-          <div className="patient-list">
-            <h2>Patient List</h2>
-            <ul>
-              {patients.data.map(patient => (
-                <li key={patient._id} onClick={() => handlePatientClick(patient)}>
-                  <div className="patient-name">Patient Name: {`${patient.firstName} ${patient.lastname}`}</div>
-                  <FontAwesomeIcon icon={faArrowRight} beat size="2xl" style={{color: "#B197FC",}} />
-                </li>
-              ))}
-            </ul>
-          </div>
+          patients.length === 0 ? (
+            <div className="registration-form">
+              <div className="header">
+                <i className="fas fa-hospital-alt"></i>
+                <h2>Patients Follow up & Consultation</h2>
+              </div>
+              <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                  <label htmlFor="phone">Enter Mobile Number <span className="required">*</span></label>
+                  <input type="tel" id="phone" name="mobile_number" value={formData.mobile_number} onChange={handleChange} pattern="\d{10}" title="Please enter 10 digits" required />
+                </div>
+                <button type="submit" disabled={isSearching}>
+                  {isSearching ? 'Searching...' : 'Submit'}
+                </button>
+              </form>
+            </div>
+          ) : (
+            <div className="patient-list">
+              <h2>Patient List</h2>
+              <ul>
+                {patients.data.map(patient => (
+                  <li key={patient._id} onClick={() => handlePatientClick(patient)}>
+                    <div className="patient-name">Patient Name: {`${patient.firstName} ${patient.lastname}`}</div>
+                    <FontAwesomeIcon icon={faArrowRight} beat size="2xl" style={{color: "#B197FC",}} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )
         )
       )}
-    {showModal && (
-  <div className="modal">
-    <div className="modal-content">
-      <span className="close" onClick={closeModal}>&times;</span>
-      <p>{modalContent}</p>
-      {paymentPending && consultationData.fees.trim() !== "No fee" && consultationData.fees.trim() !== "" && (
-        <div>
-          <img src={qrimg} width={350} alt="QR Code for Payment" />
-          <p>Payment Amount: {consultationData.fees}</p>
-          <button onClick={confirmPayment} type='submit' className='modal-content-btn'>Confirm Payment</button>
+      {showModal && (
+        <div className="modal">
+          <div className="modal-content">
+            <span className="close" onClick={closeModal}>&times;</span>
+            <p>{modalContent}</p>
+            {paymentPending && consultationData.fees.trim() !== "No fee" && consultationData.fees.trim() !== "" && (
+              <div>
+                <img src={qrimg} width={350} alt="QR Code for Payment" />
+                <p>Payment Amount: {consultationData.fees}</p>
+                <button onClick={confirmPayment} type='submit' className='modal-content-btn'>Confirm Payment</button>
+              </div>
+            )}
+            {!paymentPending && consultationType === "" && (
+              <div className="button-containers">
+                <button onClick={() => handleConsultationTypeSelection('Follow-Up')} className='modal-content-btn'>Follow-Up</button>
+                <button onClick={() => handleConsultationTypeSelection('Consultation')} className='modal-content-btn'>Consultation</button>
+              </div>
+            )}
+            {!paymentPending && consultationType !== "" && (
+              <div className="success-icon">
+                <FontAwesomeIcon icon={faCircleCheck} />
+              </div>
+            )}
+          </div>
         </div>
       )}
-      {!paymentPending && consultationType === "" && (
-        <div className="button-containers">
-          <button onClick={() => handleConsultationTypeSelection('Follow-Up')} className='modal-content-btn'>Follow-Up</button>
-          <button onClick={() => handleConsultationTypeSelection('Consultation')} className='modal-content-btn'>Consultation</button>
-        </div>
-      )}
-      {!paymentPending && consultationType !== "" && (
-        <div className="success-icon">
-          <FontAwesomeIcon icon={faCircleCheck} />
-        </div>
-      )}
-    </div>
-  </div>
-)}
-<ToastContainer />
+      <ToastContainer />
     </div>
   );
 };

@@ -104,6 +104,31 @@
     color: #333;
   }
   
+  .booking-details {
+    margin-top: 160px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 15px;
+  }
+  
+  .booking-details h1 {
+    margin-bottom: 20px;
+    color: #5cb85c;
+    font-family: 'Nunito', sans-serif;
+    font-size: 45px;
+  }
+  
+  .booking-details-list p {
+    margin: 8px 0;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1em;
+    color: #555;
+    font-size: 35px;
+  }
+  
+  .booking-details-list p strong {
+    color: #333;
+  }
   .button-container {
     display: flex;
     justify-content: space-between;
