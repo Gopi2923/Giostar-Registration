@@ -3,7 +3,7 @@ import './FollowUp.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight, faCircleCheck, faCircleLeft } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRight, faCircleCheck, faCircleLeft, faAnglesLeft, faAnglesRight, faPersonWalkingArrowLoopLeft, faPersonCirclePlus } from '@fortawesome/free-solid-svg-icons';
 import { TailSpin } from 'react-loader-spinner';
 import qrimg from '../../assets/images/qrcode.png';
 import { ToastContainer, toast } from 'react-toastify';
@@ -163,12 +163,12 @@ const FollowUp = () => {
           <h1>Consultation Details</h1>
           <div className="booking-details-list">
           <p><strong>Thank you for booking!</strong></p>
-          <p><strong>Patient ID:</strong> {consultationResponse.patientId}</p>
+          {consultationResponse.patientId && <p><strong>Patient ID:</strong> {consultationResponse.patientId}</p>}
           <p><strong>Patient Name:</strong> {`${selectedPatient.firstName} ${selectedPatient.lastname}`}</p>
-          <p><strong>Doctor Name:</strong> {consultationResponse.doctorName}</p>
-          <p><strong>Reason:</strong> {consultationResponse.reason}</p>
-          <p><strong>Fees:</strong> {consultationResponse.fees}</p>
-          <p><strong>Date of Consultation:</strong> {new Date(consultationResponse.dateOfConsultation).toLocaleDateString()}</p>
+          {consultationResponse.doctorName && <p><strong>Doctor Name:</strong> {consultationResponse.doctorName}</p>}
+          {consultationResponse.reason && <p><strong>Reason:</strong> {consultationResponse.reason}</p>}
+          {consultationResponse.fees &&  <p><strong>Fees:</strong> {consultationResponse.fees}</p>}
+          {consultationResponse.dateOfConsultation && <p><strong>Date of Consultation:</strong> {new Date(consultationResponse.dateOfConsultation).toLocaleDateString()}</p>}
         </div>
         </div>
       ) : (
@@ -222,8 +222,8 @@ const FollowUp = () => {
                 <p><strong>Date of Registration:</strong> {new Date(selectedPatient.createdAt).toLocaleDateString()}</p>
               </div>
               <div className="button-container">
-                <button onClick={() => setSelectedPatient(null)} className='back-button'>Back to List</button>
-                <button onClick={handleContinue} className='continue-button'>Continue</button>
+                <button onClick={() => setSelectedPatient(null)} className='back-button'><FontAwesomeIcon icon={faAnglesLeft} fade size='xl'/>Back to List</button>
+                <button onClick={handleContinue} className='continue-button'>Continue <FontAwesomeIcon icon={faAnglesRight} fade size='xl'/></button>
               </div>
             </div>
           )
@@ -274,8 +274,8 @@ const FollowUp = () => {
             )}
             {!paymentPending && consultationType === "" && (
               <div className="button-containers">
-                <button onClick={() => handleConsultationTypeSelection('Follow-Up')} className='modal-content-btn'>Follow-Up</button>
-                <button onClick={() => handleConsultationTypeSelection('Consultation')} className='modal-content-btn'>Consultation</button>
+                <button onClick={() => handleConsultationTypeSelection('Follow-Up')} className='modal-content-btn'><FontAwesomeIcon icon={faPersonWalkingArrowLoopLeft} beat style={{color: "#FFD43B",}} size='xl'/>Follow-Up</button>
+                <button onClick={() => handleConsultationTypeSelection('Consultation')} className='modal-content-btn'><FontAwesomeIcon icon={faPersonCirclePlus} beat size="xl" style={{color: "#FFD43B",}} />Consultation</button>
               </div>
             )}
             {!paymentPending && consultationType !== "" && (

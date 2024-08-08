@@ -137,7 +137,7 @@
   
   .back-button, .continue-button {
     padding: 10px 20px;
-    font-size: 18px;
+    font-size: 20px;
     font-family: 'Nunito', sans-serif;
     border: none;
     border-radius: 5px;
@@ -189,13 +189,15 @@
     padding: 10px 20px;
     margin-top: 10px;
     margin-bottom: 10px;
-    font-size: 16px;
+    font-size: 20px;
     color: #fff;
     background-color: #007bff;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
   
   .modal-content button:hover {
