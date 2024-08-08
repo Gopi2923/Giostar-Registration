@@ -27,6 +27,8 @@ const HomePage = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedHeaders, setSelectedHeaders] = useState([]);
 
+  const today = new Date();
+
   const allHeaders = [
     { label: 'Name', value: 'firstName' },
     { label: 'Age', value: 'age' },
@@ -209,6 +211,7 @@ const HomePage = () => {
               onChange={date => setFromDate(date)}
               placeholderText="Select from date"
               dateFormat="yyyy/MM/dd"
+              maxDate={today}
             />
             <label className="date-picker-label">To:</label>
             <FontAwesomeIcon icon={faCalendarDays} />
@@ -217,6 +220,7 @@ const HomePage = () => {
               onChange={date => setToDate(date)}
               placeholderText="Select to date"
               dateFormat="yyyy/MM/dd"
+              maxDate={today}
             />
           </div>
           <div className="custom-headers">
