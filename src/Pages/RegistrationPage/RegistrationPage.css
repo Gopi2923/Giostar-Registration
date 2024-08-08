@@ -147,7 +147,7 @@ button[type="button"]:hover {
   background-color: #007bff;
   color: white;
   border: none;
-  padding: 10px 15px;
+  padding: 10px 5px;
   border-radius: 25px;
   cursor: pointer;
   font-size: 30px;

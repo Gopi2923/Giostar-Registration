@@ -4,7 +4,7 @@ import QRimage from '../../assets/images/qrcode.png';
 import { useNavigate } from 'react-router-dom';
 import './RegistrationPage.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
+import { faCircleCheck, faCircleLeft } from '@fortawesome/free-solid-svg-icons';
 
 
 const RegistrationPage = () => {
@@ -99,7 +99,7 @@ const RegistrationPage = () => {
 
   return (
     <div className='registration-container'>
-      <button className="back-btn" onClick={() => navigate('/')}>Back to Home</button>
+      <button className="back-btn" onClick={() => navigate('/')}><FontAwesomeIcon icon={faCircleLeft} beat style={{color: "#FFD43B",}}/> Back to Home</button>
       <div className="registration-form">
         <div className="header">
           <i className="fas fa-hospital-alt"></i>

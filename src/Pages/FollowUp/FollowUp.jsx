@@ -3,7 +3,7 @@ import './FollowUp.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight, faCircleCheck } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRight, faCircleCheck, faCircleLeft } from '@fortawesome/free-solid-svg-icons';
 import { TailSpin } from 'react-loader-spinner';
 import qrimg from '../../assets/images/qrcode.png';
 import { ToastContainer, toast } from 'react-toastify';
@@ -23,6 +23,7 @@ const FollowUp = () => {
   const [paymentPending, setPaymentPending] = useState(false);
   const [consultationType, setConsultationType] = useState("");
   const [consultationResponse, setConsultationResponse] = useState(null); // Add state for consultation response
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   const navigate = useNavigate();
 
@@ -56,7 +57,7 @@ const FollowUp = () => {
       setPatients(response.data);
     } catch (error) {
       console.error('Error fetching patients:', error);
-      toast.error('Please Enter Registered Number.');
+      toast.error('Number not found.');
     } finally {
       setIsSearching(false);
     }
@@ -144,8 +145,10 @@ const FollowUp = () => {
   };
 
   const confirmPayment = async () => {
+    setIsProcessingPayment(true)
     await submitConsultation();
-    setPaymentPending(false);
+    setPaymentPending(false)
+    setIsProcessingPayment(false);
   };
 
   const closeModal = () => {
@@ -154,7 +157,7 @@ const FollowUp = () => {
 
   return (
     <div className='registration-container'>
-      <button className="back-btn" onClick={() => navigate('/')}>Back to Home</button>
+      <button className="back-btn" onClick={() => navigate('/')}><FontAwesomeIcon icon={faCircleLeft} beat style={{color: "#FFD43B",}} /> Back to Home</button>
       {consultationResponse ? (
         <div className="booking-details">
           <h1>Consultation Details</h1>
@@ -265,7 +268,8 @@ const FollowUp = () => {
               <div>
                 <img src={qrimg} width={350} alt="QR Code for Payment" />
                 <p>Payment Amount: {consultationData.fees}</p>
-                <button onClick={confirmPayment} type='submit' className='modal-content-btn'>Confirm Payment</button>
+                <button onClick={confirmPayment} type='submit' className='search-spinner' disabled={isProcessingPayment}>
+                 {isProcessingPayment ? <><span>Please Wait</span><TailSpin  color="#fff" height={34} width={44} /></> : 'Confirm Payment'} </button>
               </div>
             )}
             {!paymentPending && consultationType === "" && (
