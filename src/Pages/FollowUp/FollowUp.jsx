@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight, faCircleCheck } from '@fortawesome/free-solid-svg-icons';
+import { TailSpin } from 'react-loader-spinner';
 import qrimg from '../../assets/images/qrcode.png';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -235,8 +236,8 @@ const FollowUp = () => {
                   <label htmlFor="phone">Enter Mobile Number <span className="required">*</span></label>
                   <input type="tel" id="phone" name="mobile_number" value={formData.mobile_number} onChange={handleChange} pattern="\d{10}" title="Please enter 10 digits" required />
                 </div>
-                <button type="submit" disabled={isSearching}>
-                  {isSearching ? 'Searching...' : 'Submit'}
+                <button type="submit" disabled={isSearching} className="search-spinner">
+                  {isSearching ? <> <span>Searching</span> <TailSpin color="#fff" height={34} width={44}/> </>: 'Submit'}
                 </button>
               </form>
             </div>

@@ -108,6 +108,7 @@ const HomePage = () => {
           exportToPDF(filteredData);
         }
         closeModal();
+        toast.success("Downloaded Successfully.");
       }
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Error fetching registrations';
@@ -116,7 +117,6 @@ const HomePage = () => {
     } finally {
       setIsLoadingExcel(false);
       setIsLoadingPDF(false);
-      toast.success("Downloaded Successfully.");
     }
   };
 
