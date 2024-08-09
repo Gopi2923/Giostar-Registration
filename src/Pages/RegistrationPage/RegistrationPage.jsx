@@ -4,7 +4,8 @@ import QRimage from '../../assets/images/qrcode.png';
 import { useNavigate } from 'react-router-dom';
 import './RegistrationPage.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleCheck, faCircleLeft } from '@fortawesome/free-solid-svg-icons';
+import { faCircleCheck, faCircleLeft} from '@fortawesome/free-solid-svg-icons';
+import { TailSpin } from 'react-loader-spinner';
 
 
 const RegistrationPage = () => {
@@ -31,6 +32,7 @@ const RegistrationPage = () => {
   const [paymentConfirmed, setPaymentConfirmed] = useState(false);
   const [responseData, setResponseData] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -74,11 +76,20 @@ const RegistrationPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Update the isSubmitted state to show the QR code
-    setIsSubmitted(true);
+    setIsLoading(true);
+    try {
+      await new Promise((resonve) => setTimeout(resonve, 1000));
+       // Update the isSubmitted state to show the QR code
+      setIsSubmitted(true);
+    } catch(error){
+      console.log('Error', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handlePaymentConfirm = async () => {
+    setIsLoading(true);
     try {
       const paymentResponse = await axios.post('https://giostar.onrender.com/registration/add', formData);
       console.log('Payment Response:', paymentResponse.data);
@@ -89,6 +100,8 @@ const RegistrationPage = () => {
       setShowModal(true); // Show the modal
     } catch (error) {
       console.log('There was an error!', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -112,7 +125,8 @@ const RegistrationPage = () => {
                 <h2>Total Amount: 300 /-</h2>
                 <h2>Scan to Pay</h2>
                 <img src={QRimage} alt="QR" width={'280px'} height={'250px'} />
-                <button onClick={handlePaymentConfirm} type='submit'>Confirm Payment</button>
+                <button onClick={handlePaymentConfirm} type='submit' disabled={isLoading}>
+                  {isLoading ? <><span>Processing</span> <TailSpin color="#fff" height={24} width={24}/> </>: 'Confirm Payment'} </button>
                 <p>* Note: Please ensure payment fee amount with frontdesk person.</p>
               </div>
             ) : (
@@ -210,7 +224,8 @@ const RegistrationPage = () => {
                   <option value="consultation">Consultation</option>
                 </select>
               </div>
-              <button type="submit">Submit</button>
+              <button type="submit" disabled={isLoading}>
+               {isLoading ? <> <span>Submitting</span> <TailSpin color="#fff" height={34} width={44}/>  </>:  'Submit'}</button>
             </form>
           </>
         )}

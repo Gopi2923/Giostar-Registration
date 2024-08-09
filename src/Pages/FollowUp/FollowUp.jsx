@@ -219,7 +219,7 @@ const FollowUp = () => {
                 <p><strong>Email:</strong> {selectedPatient.email}</p>
                 <p><strong>Age:</strong> {selectedPatient.age}</p>
                 <p><strong>Gender:</strong> {selectedPatient.gender}</p>
-                <p><strong>Date of Registration:</strong> {new Date(selectedPatient.createdAt).toLocaleDateString()}</p>
+                <p><strong>Date of Registration:</strong> {new Date(selectedPatient.dateOfRegistration).toLocaleDateString()}</p>
               </div>
               <div className="button-container">
                 <button onClick={() => setSelectedPatient(null)} className='back-button'><FontAwesomeIcon icon={faAnglesLeft} fade size='xl'/>Back to List</button>
