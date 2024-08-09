@@ -178,7 +178,7 @@ const HomePage = () => {
 
   return (
     <div className="home-page">
-      <ParticlesBg type="square" bg={true} />
+      {/* <ParticlesBg type="square" bg={true} /> */}
       <div className="content">
         <img src={logo} alt="Hospital Logo" className="logo" />
         <h4 className="title">Effortless Patient Registration</h4>
@@ -210,7 +210,7 @@ const HomePage = () => {
               selected={fromDate}
               onChange={date => setFromDate(date)}
               placeholderText="Select from date"
-              dateFormat="yyyy/MM/dd"
+              dateFormat="dd/MM/yyyy"
               maxDate={today}
             />
             <label className="date-picker-label">To:</label>
@@ -219,7 +219,7 @@ const HomePage = () => {
               selected={toDate}
               onChange={date => setToDate(date)}
               placeholderText="Select to date"
-              dateFormat="yyyy/MM/dd"
+              dateFormat="dd/MM/yyyy"
               maxDate={today}
             />
           </div>

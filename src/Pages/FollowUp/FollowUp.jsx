@@ -157,6 +157,11 @@ const FollowUp = () => {
     setShowModal(false);
   };
 
+  const formatDate = (dateString) => {
+    const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('en-GB', options);
+  };
+
   return (
     <div className='registration-container'>
       <button className="back-btn" onClick={() => navigate('/')}><FontAwesomeIcon icon={faCircleLeft} beat style={{color: "#FFD43B",}} /> Back to Home</button>
@@ -170,7 +175,7 @@ const FollowUp = () => {
           {consultationResponse.doctorName && <p><strong>Doctor Name:</strong> {consultationResponse.doctorName}</p>}
           {consultationResponse.reason && <p><strong>Reason:</strong> {consultationResponse.reason}</p>}
           {consultationResponse.fees &&  <p><strong>Fees:</strong> {consultationResponse.fees}</p>}
-          {consultationResponse.dateOfConsultation && <p><strong>Date of Consultation:</strong> {new Date(consultationResponse.dateOfConsultation).toLocaleDateString()}</p>}
+          {consultationResponse.dateOfConsultation && <p><strong>Date of Consultation:</strong> {formatDate(new Date(consultationResponse.dateOfConsultation).toLocaleDateString())}</p>}
         </div>
         </div>
       ) : (
@@ -199,7 +204,7 @@ const FollowUp = () => {
                 </div>
                 <div className="form-group">
                   <label htmlFor="dateOfConsultation">Date of Consultation</label>
-                  <input type="text" id="dateOfConsultation" value={new Date().toLocaleDateString()} disabled />
+                  <input type="text" id="dateOfConsultation" value={formatDate(new Date().toLocaleDateString())} disabled />
                 </div>
                 <div className="form-group">
                   <label htmlFor="doctorName">Doctor Name  <span className="required">*</span></label>
@@ -235,7 +240,7 @@ const FollowUp = () => {
                 <p><strong>Email:</strong> {selectedPatient.email}</p>
                 <p><strong>Age:</strong> {selectedPatient.age}</p>
                 <p><strong>Gender:</strong> {selectedPatient.gender}</p>
-                <p><strong>Date of Registration:</strong> {new Date(selectedPatient.dateOfRegistration).toLocaleDateString()}</p>
+                <p><strong>Date of Registration:</strong> {formatDate(new Date(selectedPatient.dateOfRegistration).toLocaleDateString())}</p>
               </div>
               <div className="button-container">
                 <button onClick={() => setSelectedPatient(null)} className='back-button'><FontAwesomeIcon icon={faAnglesLeft} fade size='xl'/>Back to List</button>
