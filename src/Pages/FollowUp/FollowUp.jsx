@@ -175,7 +175,9 @@ const FollowUp = () => {
         selectedPatient ? (
           showConsultationForm ? (
             <div className="registration-form">
-              <h2>Consultation Form</h2>
+              <div className="header">
+              <i className="fas fa-hospital-alt"></i>
+              <h1>Consultation Form</h1> </div>
               <form onSubmit={handleConsultationSubmit}>
                 <div className="form-group">
                   <label htmlFor="patientName">Patient Name</label>
