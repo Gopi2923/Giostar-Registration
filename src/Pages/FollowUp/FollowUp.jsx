@@ -24,6 +24,7 @@ const FollowUp = () => {
   const [consultationType, setConsultationType] = useState("");
   const [consultationResponse, setConsultationResponse] = useState(null); // Add state for consultation response
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [previousPage, setPreviousPage] = useState(''); // Manage previous page state
 
   const navigate = useNavigate();
 
@@ -74,6 +75,7 @@ const FollowUp = () => {
   };
 
   const handleConsultationTypeSelection = async (type) => {
+    setPreviousPage('details');
     setConsultationType(type);
     setShowModal(false);
     setIsVerifying(true);
@@ -175,6 +177,18 @@ const FollowUp = () => {
         selectedPatient ? (
           showConsultationForm ? (
             <div className="registration-form">
+              
+    <button onClick={() => {
+      setShowConsultationForm(false);
+      setConsultationType("");
+      if (previousPage === 'details') {
+        setSelectedPatient(selectedPatient);
+      } else {
+        setShowModal(true);
+      }
+    }} className="back-btn">
+      <FontAwesomeIcon icon={faAnglesLeft} fade size='xl'/> Back
+    </button>
               <div className="header">
               <i className="fas fa-hospital-alt"></i>
               <h1>Consultation Form</h1> </div>
@@ -248,7 +262,7 @@ const FollowUp = () => {
             </div>
           ) : (
             <div className="patient-list">
-              <h2>Patient List</h2>
+              <h1>Patient List</h1>
               <ul>
                 {patients.data.map(patient => (
                   <li key={patient._id} onClick={() => handlePatientClick(patient)}>

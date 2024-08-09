@@ -36,8 +36,8 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
   
-  .patient-list h2 {
-    font-size: 34px;
+  .patient-list h1 {
+    font-size: 54px;
     margin-bottom: 20px;
     text-align: center;
     color: #333;
@@ -62,6 +62,7 @@
     justify-content: space-between;
     align-items: center;
     gap: 20px;
+    font-size: 20px;
   }
   
   .patient-list li:hover {
