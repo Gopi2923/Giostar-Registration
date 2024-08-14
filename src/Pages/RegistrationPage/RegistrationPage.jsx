@@ -10,21 +10,27 @@ import { TailSpin } from 'react-loader-spinner';
 
 const RegistrationPage = () => {
 
-  const formatDate = (date) => {
-    const d = new Date(date);
-    let day = d.getDate();
-    let month = d.getMonth() + 1;
-    const year = d.getFullYear();
+ // For UI display as dd/mm/yyyy
+const formatDateForDisplay = (date) => {
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
 
-    if (day < 10) {
-      day = `0${day}`;
-    }
-    if (month < 10) {
-      month = `0${month}`;
-    }
+  return `${day}/${month}/${year}`;
+};
 
-    return `${day}/${month}/${year}`;
-  };
+// For payload submission as yyyy-mm-dd
+const formatDateForPayload = (date) => {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+};
+
+  
 
   const today = new Date();
   const [formData, setFormData] = useState({
@@ -39,7 +45,7 @@ const RegistrationPage = () => {
     city: '',
     state: '',
     pincode: '',
-    dateOfRegistration: formatDate(today),
+    dateOfRegistration: formatDateForDisplay(today),
     doctorName: '',
     reason: '',
     typeOfVisit: 'Consultation',
@@ -109,10 +115,15 @@ const RegistrationPage = () => {
   const handlePaymentConfirm = async () => {
     setIsLoading(true);
     try {
-      const paymentResponse = await axios.post('https://giostar.onrender.com/registration/add', formData);
+      // Prepare the data with the correct date format for the payload
+      const payload = {
+        ...formData,
+        dateOfRegistration: formatDateForPayload(today), // Send as yyyy-mm-dd
+      };
+  
+      const paymentResponse = await axios.post('https://giostar.onrender.com/registration/add', payload);
       console.log('Payment Response:', paymentResponse.data);
-
-      // Set the paymentConfirmed state and responseData
+  
       setPaymentConfirmed(true);
       setResponseData(paymentResponse.data);
       setShowModal(true); // Show the modal
@@ -122,12 +133,7 @@ const RegistrationPage = () => {
       setIsLoading(false);
     }
   };
-
-  // const formatDate = (dateString) => {
-  //   const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
-  //   return new Date(dateString).toLocaleDateString('en-GB', options);
-  // };
-
+  
   return (
     <div className='registration-container'>
       <button className="back-btn" onClick={() => navigate('/')}><FontAwesomeIcon icon={faCircleLeft} beat style={{color: "#FFD43B",}}/> Back to Home</button>
@@ -162,7 +168,7 @@ const RegistrationPage = () => {
                     {responseData.city && <p><strong>City:</strong> {responseData.city}</p>}
                     {responseData.state && <p><strong>State:</strong> {responseData.state}</p>}
                     {responseData.pincode && <p><strong>Pincode:</strong> {responseData.pincode}</p>}
-                    {responseData.createdAt && <p><strong>Date of Registration:</strong> {formatDate(responseData.createdAt)}</p>}
+                    {responseData.createdAt && <p><strong>Date of Registration:</strong> {formatDateForDisplay(responseData.createdAt)}</p>}
                     {responseData.reason && <p><strong>Reason for Visit:</strong> {responseData.reason}</p>}
                     {responseData.typeOfVisit && <p><strong>Type of Visit:</strong> {responseData.typeOfVisit}</p>}
                   </div>
