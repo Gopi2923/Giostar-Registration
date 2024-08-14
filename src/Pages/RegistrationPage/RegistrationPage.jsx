@@ -9,6 +9,24 @@ import { TailSpin } from 'react-loader-spinner';
 
 
 const RegistrationPage = () => {
+
+  const formatDate = (date) => {
+    const d = new Date(date);
+    let day = d.getDate();
+    let month = d.getMonth() + 1;
+    const year = d.getFullYear();
+
+    if (day < 10) {
+      day = `0${day}`;
+    }
+    if (month < 10) {
+      month = `0${month}`;
+    }
+
+    return `${day}/${month}/${year}`;
+  };
+
+  const today = new Date();
   const [formData, setFormData] = useState({
     firstName: '',
     middleName: '',
@@ -21,7 +39,7 @@ const RegistrationPage = () => {
     city: '',
     state: '',
     pincode: '',
-    dateOfRegistration: new Date().toISOString().split('T')[0],
+    dateOfRegistration: formatDate(today),
     doctorName: '',
     reason: '',
     typeOfVisit: 'Consultation',
@@ -105,10 +123,10 @@ const RegistrationPage = () => {
     }
   };
 
-  const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString('en-GB', options);
-  };
+  // const formatDate = (dateString) => {
+  //   const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+  //   return new Date(dateString).toLocaleDateString('en-GB', options);
+  // };
 
   return (
     <div className='registration-container'>
@@ -206,8 +224,8 @@ const RegistrationPage = () => {
                 <input type="text" id="pincode" name="pincode"  value={formData.pincode} onChange={handleChange}/>
               </div>
               <div className="form-group">
-                <label htmlFor="date">Date of Registration <span className="required">*</span></label>
-                <input type="date" id="date" name="dateOfRegistration" value={formData.dateOfRegistration} onChange={handleChange} 
+                <label htmlFor="dateOfRegistration">Date of Registration <span className="required">*</span></label>
+                <input type="text" id="dateOfRegistration" name="dateOfRegistration" value={formData.dateOfRegistration} onChange={handleChange} 
                     style={{ backgroundColor: '#f0f0f0', cursor: 'not-allowed' }} readOnly required />
               </div>
               <div className="form-group">
