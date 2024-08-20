@@ -46,9 +46,9 @@ const formatDateForPayload = (date) => {
     state: '',
     pincode: '',
     dateOfRegistration: formatDateForDisplay(today),
-    doctorName: '',
+    // doctorName: '',
     reason: '',
-    typeOfVisit: 'Consultation',
+    // typeOfVisit: 'Consultation',
   });
   const navigate = useNavigate()
 
@@ -170,7 +170,7 @@ const formatDateForPayload = (date) => {
                     {responseData.pincode && <p><strong>Pincode:</strong> {responseData.pincode}</p>}
                     {responseData.createdAt && <p><strong>Date of Registration:</strong> {formatDateForDisplay(responseData.createdAt)}</p>}
                     {responseData.reason && <p><strong>Reason for Visit:</strong> {responseData.reason}</p>}
-                    {responseData.typeOfVisit && <p><strong>Type of Visit:</strong> {responseData.typeOfVisit}</p>}
+                    {/* {responseData.typeOfVisit && <p><strong>Type of Visit:</strong> {responseData.typeOfVisit}</p>} */}
                   </div>
                 </div>
               )
@@ -234,20 +234,20 @@ const formatDateForPayload = (date) => {
                 <input type="text" id="dateOfRegistration" name="dateOfRegistration" value={formData.dateOfRegistration} onChange={handleChange} 
                     style={{ backgroundColor: '#f0f0f0', cursor: 'not-allowed' }} readOnly required />
               </div>
-              <div className="form-group">
+              {/* <div className="form-group">
                 <label htmlFor="doctorName">Doctor Name <span className="required">*</span></label>
                 <input id="doctorName" name="doctorName" value={formData.doctorName} onChange={handleChange} required></input>
-              </div>
+              </div> */}
               <div className="form-group">
                 <label htmlFor="reason">Reason for Visit</label>
                 <textarea id="reason" name="reason" value={formData.reason} onChange={handleChange}></textarea>
               </div>
-              <div className="form-group">
+              {/* <div className="form-group">
                 <label htmlFor="typeOfVisit">Type of Visit <span className="required">*</span></label>
                 <select id="typeOfVisit" name="typeOfVisit" value={formData.typeOfVisit} onChange={handleChange} required>
                   <option value="consultation">Consultation</option>
                 </select>
-              </div>
+              </div> */}
               <button type="submit" disabled={isLoading}>
                {isLoading ? <> <span>Submitting</span> <TailSpin color="#fff" height={34} width={44}/>  </>:  'Submit'}</button>
             </form>

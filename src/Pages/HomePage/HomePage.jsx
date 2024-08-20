@@ -4,7 +4,7 @@ import logo from '../../assets/images/logo-01.png';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarDays, faCircleDown } from '@fortawesome/free-solid-svg-icons';
+import { faCalendarDays, faCircleDown, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { TailSpin } from 'react-loader-spinner';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -71,6 +71,48 @@ const HomePage = () => {
       setSelectedHeaders(selected);
     }
   };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const data = new Uint8Array(event.target.result);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+      const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+  
+      // Assuming the first row contains headers
+      const headers = jsonData[0];
+      const rows = jsonData.slice(1);
+  
+      // Convert Excel rows to an array of JSON objects
+      const payload = rows.map(row => {
+        return {
+          firstName: row[headers.indexOf('firstName')],
+          lastName: row[headers.indexOf('lastName')],
+          department: row[headers.indexOf('department')],
+          fees: row[headers.indexOf('fees')],
+          mobileNumber: row[headers.indexOf('mobileNumber')],
+          speciality: row[headers.indexOf('speciality')],
+        };
+      });
+  
+      try {
+        const response = await axios.post('https://giostar.onrender.com/doctor-info/add', payload, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        toast.success('File uploaded and data sent successfully!');
+        console.log(response.data);
+      } catch (error) {
+        toast.error('Error uploading file or sending data.');
+        console.error(error);
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  };
+  
 
   const fetchRegistrations = async (fileFormat) => {
     if (!fromDate || !toDate) {
@@ -187,6 +229,7 @@ const HomePage = () => {
           <button className="register-btn" onClick={handleButtonClick}>New Patient Register</button>
           <button className="register-btn" onClick={handleFollowupBtnClick}>Existing Patient</button>
         </div>  
+        <div className="upload-container">
           <button className='export-btn' onClick={() => setModalIsOpen(true)}>
             {(isLoadingExcel || isLoadingPDF) ? (
               <div className="spinner-container">
@@ -196,6 +239,19 @@ const HomePage = () => {
               <><FontAwesomeIcon icon={faCircleDown} /> Export Registrations</>
             )}
           </button>
+
+          
+          <label htmlFor="upload-input" className="upload-btn">
+            <FontAwesomeIcon icon={faUpload} />
+          </label>
+          <input
+            type="file"
+            id="upload-input"
+            className="upload-input"
+            accept=".xlsx, .xls"
+            onChange={handleFileUpload}
+          />
+        </div>
       </div>
       <div className="background-img"></div>
 
