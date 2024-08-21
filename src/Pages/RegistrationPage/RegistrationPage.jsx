@@ -76,7 +76,7 @@ const formatDateForPayload = (date) => {
       }
     } else if (name === 'age') {
       const ageValue = value.replace(/\D/g, ''); // Remove non-digit characters
-      if (ageValue.length <= 3) {
+      if (ageValue.length <= 2) {
         setFormData({
           ...formData,
           [name]: ageValue,
@@ -195,7 +195,7 @@ const formatDateForPayload = (date) => {
               </div>
               <div className="form-group">
                 <label htmlFor="age">Age <span className="required">*</span></label>
-                <input type="number" id="age" name="age" value={formData.age} onChange={handleChange} required />
+                <input type="text" id="age" name="age" value={formData.age} onChange={handleChange} required />
               </div>
               <div className="form-group">
                 <label htmlFor="gender">Gender <span className="required">*</span></label>
