@@ -1,234 +1,209 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './FollowUp.css';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleLeft } from '@fortawesome/free-solid-svg-icons';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
-import qrimg from '../../assets/images/qrcode.png';
 import PatientSearchForm from './PatientSearchForm';
 import PatientList from './PatientList';
 import PatientDetails from './PatientDetails';
+import Modal from './Modal';
+import FollowUpForm from './FollowUpForm';
 import ConsultationForm from './ConsultationForm';
-import DoctorList from './DoctorList.js.jsx';
-import ConsultationDetails from './ConsultationDetails';
-import Modal from './Modal.jsx';
+import DoctorList from './DoctorList.js'; 
+import QRCodeCard from './QRCodeCard.jsx';
+import ConsultationDetails from './ConsultationDetails.jsx';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleLeft } from '@fortawesome/free-solid-svg-icons';
 
-const FollowUp = () => {
-  const [formData, setFormData] = useState({ mobile_number: "" });
-  const [patients, setPatients] = useState([]);
-  const [selectedPatient, setSelectedPatient] = useState(null);
-  const [isSearching, setIsSearching] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [isVerified, setIsVerified] = useState(null);
-  const [showConsultationForm, setShowConsultationForm] = useState(false);
-  const [consultationData, setConsultationData] = useState({ doctorName: "", reason: "", fees: "" });
-  const [showModal, setShowModal] = useState(false);
-  const [modalContent, setModalContent] = useState('');
-  const [paymentPending, setPaymentPending] = useState(false);
-  const [consultationType, setConsultationType] = useState("");
-  const [consultationResponse, setConsultationResponse] = useState(null);
-  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-  const [previousPage, setPreviousPage] = useState('');
-  const [doctorList, setDoctorList] = useState([]);
-  const [doctorListVisible, setDoctorListVisible] = useState(false);
 
-  const navigate = useNavigate();
+function FollowUp() {
+    const [patients, setPatients] = useState([]);
+    const [selectedPatient, setSelectedPatient] = useState(null);
+    const [modalOpen, setModalOpen] = useState(false);
+    const [doctors, setDoctors] = useState([]);
+    const [selectedDoctor, setSelectedDoctor] = useState('');
+    const [showQRCode, setShowQRCode] = useState(false);
+    const [qrCodeImage, setQrCodeImage] = useState('');
+    const [showFeeField, setShowFeeField] = useState(false);
+    const [consultationType, setConsultationType] = useState('');
+    const [showDoctorList, setShowDoctorList] = useState(false); 
+    const [searchCompleted, setSearchCompleted] = useState(false); 
+    const [showPatientDetails, setShowPatientDetails] = useState(true); 
+    const [formSubmitted, setFormSubmitted] = useState(false);  
+    const [consultationFee, setConsultationFee] = useState(''); 
+    const [isProcessingPayment, setIsProcessingPayment] = useState(false); 
+    const [consultationResponse, setConsultationResponse] = useState(null); // New state for consultation details
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (name === 'mobile_number') {
-      const cleanedValue = value.replace(/\D/g, '');
-      if (cleanedValue.length <= 10) {
-        setFormData({ ...formData, [name]: cleanedValue });
-      }
-    } else {
-      setConsultationData({ ...consultationData, [name]: value });
-    }
-  };
+    const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSearching(true);
-    try {
-      const response = await axios.post('https://giostar.onrender.com/registration/getByMobileNumber', formData);
-      setPatients(response.data);
-    } catch (error) {
-      console.error('Error fetching patients:', error);
-      toast.error('Number not found.');
-    } finally {
-      setIsSearching(false);
-    }
-  };
-
-  const handlePatientClick = async (patient) => {
-    setSelectedPatient(patient);
-    setIsVerified(null);
-    setDoctorListVisible(false);
-    setShowConsultationForm(false);
-  };
-
-  const handleContinue = () => {
-    setShowModal(true);
-    setModalContent('Please select consultation type.');
-  };
-
-  const handleConsultationTypeSelection = async (type) => {
-    setPreviousPage('details');
-    setConsultationType(type);
-    setShowModal(false);
-    setIsVerifying(true);
-  
-    if(type === 'Follow-Up') {
-      try {
-        const response = await axios.post('https://giostar.onrender.com/consultation/doctorsList', {
-          patientRef: selectedPatient._id,
-        });
-        setDoctorList(response.data);
-        setDoctorListVisible(true);
-        setShowConsultationForm(false); // Ensure the consultation form is hidden
-        setSelectedPatient(null); // Clear the selected patient to move away from the patient details page
-      } catch (error) {
-        console.error('Error fetching doctor list:', error);
-      } finally {
-        setIsVerifying(false);
-      }
-    }
-  };
-  
-
-  const handleDoctorSelection = async (doctor) => {
-    setConsultationData({ ...consultationData, doctorName: `${doctor.doctorName}` });
-
-    try {
-      const response = await axios.get(`https://giostar.onrender.com/consultation/checkFollowUp/${selectedPatient._id}/${doctor._id}`);
-      const isFollowUp = response.data.data;
-
-      if (isFollowUp) {
-        setConsultationData({ ...consultationData, fees: 'No fee' });
-      } else {
-        setConsultationData({ ...consultationData, fees: '' });
-      }
-
-      setIsVerified(isFollowUp);
-      setShowConsultationForm(true);
-      setDoctorListVisible(false);
-    } catch (error) {
-      console.error('Error checking follow-up status:', error);
-    }
-  };
-
-  const handleConsultationSubmit = async (e) => {
-    e.preventDefault();
-    if (consultationData.fees === "No fee" || consultationData.fees.trim() === "") {
-      await submitConsultation();
-    } else {
-      setPaymentPending(true);
-      setModalContent('Please complete the payment.');
-      setShowModal(true);
-    }
-  };
-
-  const submitConsultation = async () => {
-    const payload = {
-      patientId: selectedPatient.patientId,
-      patientRef: selectedPatient._id,
-      reason: consultationData.reason,
-      fees: consultationData.fees,
-      status: consultationData.fees === "No fee" || consultationData.fees.trim() === "" ? "Paid" : "Yet to pay",
-      type: consultationType,
-      doctorName: consultationData.doctorName,
-      dateOfConsultation: new Date().toISOString().split('T')[0],
+    const selectPatient = (patient) => {
+        setSelectedPatient(patient);
     };
 
-    try {
-      const response = await axios.post('https://giostar.onrender.com/consultation/add', payload);
-      if (response.data._id) {
-        setConsultationResponse(response.data);
-        setModalContent('Consultation booking done.');
-        setShowModal(true);
-        setShowConsultationForm(false);
-      } else {
-        alert('Error adding consultation');
-      }
-    } catch (error) {
-      console.error('Error adding consultation:', error);
-      alert('Error adding consultation');
-    }
-  };
+    const handleContinue = () => {
+        setModalOpen(true);
+    };
 
-  const confirmPayment = async () => {
-    setIsProcessingPayment(true);
-    await submitConsultation();
-    setPaymentPending(false);
-    setIsProcessingPayment(false);
-  };
+    const handleOptionSelect = (option) => {
+        setModalOpen(false);
+        setConsultationType(option);
+        fetchDoctors(option);
+        setShowPatientDetails(false);
+    };
 
-  const closeModal = () => {
-    setShowModal(false);
-  };
+    const fetchDoctors = (type) => {
+        const endpoint = type === 'follow-up'
+            ? 'https://giostar.onrender.com/consultation/doctorsList'
+            : 'https://giostar.onrender.com/doctor-info/getAll';
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    return `${day}/${month}/${year}`;
-  };
+        axios.post(endpoint, { patientRef: selectedPatient._id })
+            .then(response => {
+                setDoctors(response.data.data);
+                setSelectedDoctor('');
+                setShowFeeField(type === 'follow-up' ? false : true);
+                if (type === 'follow-up') {
+                    setShowDoctorList(true); 
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching doctor list:', error);
+            });
+    };
 
-  return (
-    <div className='registration-container'>
-      <button className="back-btn" onClick={() => navigate('/')}>
+    const handleDoctorSelect = (doctor) => {
+        setSelectedDoctor(doctor._id);
+        setShowDoctorList(false); 
+    };
+
+    useEffect(() => {
+        if (consultationType === 'follow-up' && selectedPatient && selectedDoctor) {
+            axios.get(`https://giostar.onrender.com/consultation/checkFollowUp/${selectedPatient._id}/${selectedDoctor}`)
+                .then(response => {
+                    setShowFeeField(!response.data.data); 
+                })
+                .catch(error => {
+                    console.error('Error checking follow-up:', error);
+                });
+        }
+    }, [consultationType, selectedPatient, selectedDoctor]);
+
+    const handleFormSubmit = (formData) => {
+        setConsultationFee(formData.fees); 
+        setQrCodeImage('./../../assets/images/QR code img.jpeg'); 
+        setShowQRCode(true);
+        setFormSubmitted(true);
+    };
+
+    const confirmPayment = () => {
+        setIsProcessingPayment(true);
+        const payload = {
+            patientId: selectedPatient.patientId,
+            patientRef: selectedPatient._id,
+            reason: '', // This should be filled with the actual reason from the form
+            fees: consultationFee,
+            status: consultationFee === "No fee" || consultationFee.trim() === "" ? "Paid" : "Yet to pay",
+            type: consultationType,
+            doctorName: '', // This should be filled with the actual doctor name from the form
+            dateOfConsultation: new Date().toISOString().split('T')[0],
+        };
+
+        axios.post('https://giostar.onrender.com/consultation/add', payload)
+            .then(response => {
+                setIsProcessingPayment(false);
+                setConsultationResponse(response.data); // Save the response data to show in the UI
+                setShowQRCode(false); // Hide the QR code after payment confirmation
+                // alert('Payment confirmed and consultation recorded!');
+                // Handle post-payment success actions here
+            })
+            .catch(error => {
+                setIsProcessingPayment(false);
+                console.error('Error confirming payment:', error);
+                alert('Failed to confirm payment. Please try again.');
+            });
+    };
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}/${month}/${year}`;
+      };
+    return (
+        <div className='registration-container'>
+             <button className="back-btn" onClick={() => navigate('/')}>
         <FontAwesomeIcon icon={faCircleLeft} beat style={{ color: "#FFD43B" }} /> Back to Home
       </button>
-      {consultationResponse ? (
-        <ConsultationDetails consultationResponse={consultationResponse} formatDate={formatDate} />
-      ) : selectedPatient ? (
-        <PatientDetails
-          selectedPatient={selectedPatient}
-          handleContinue={handleContinue}
-          formatDate={formatDate}
-          setSelectedPatient={setSelectedPatient}
-        />
-      ) : doctorListVisible ? (
-        <DoctorList doctorList={doctorList} handleDoctorSelection={handleDoctorSelection} />
-      ) : showConsultationForm ? (
-        <ConsultationForm
-          selectedPatient={selectedPatient}
-          consultationData={consultationData}
-          handleChange={handleChange}
-          handleConsultationSubmit={handleConsultationSubmit}
-          doctorList={doctorList}
-          consultationType={consultationType}
-          isVerified={isVerified}
-          showConsultationForm={showConsultationForm}
-          previousPage={previousPage}
-        />
-      ) : patients.length === 0 ? (
-        <PatientSearchForm
-          formData={formData}
-          handleChange={handleChange}
-          handleSubmit={handleSubmit}
-          isSearching={isSearching}
-        />
-      ) : (
-        <PatientList patients={patients} handlePatientClick={handlePatientClick} />
-      )}
-      <Modal 
-        showModal={showModal} 
-        closeModal={closeModal} 
-        modalContent={modalContent} 
-        paymentPending={paymentPending} 
-        confirmPayment={confirmPayment} 
-        isProcessingPayment={isProcessingPayment} 
-        handleConsultationTypeSelection={handleConsultationTypeSelection} 
-        consultationType={consultationType}
-      />
-      <ToastContainer />
-    </div>
-  );
-};
+            {!selectedPatient ? (
+                <>
+                    {!searchCompleted && (
+                        <PatientSearchForm setPatients={setPatients} setSearchCompleted={setSearchCompleted} />
+                    )}
+                    {searchCompleted && patients.data?.length > 0 && (
+                        <PatientList patients={patients} selectPatient={selectPatient} />
+                    )}
+                </>
+            ) : (
+                <>
+                    {showPatientDetails && (
+                        <PatientDetails 
+                            patient={selectedPatient} 
+                            onBack={() => setSelectedPatient(null)} 
+                            onContinue={handleContinue} 
+                            formatDate={formatDate}
+                        />
+                    )}
+                    {consultationType === 'follow-up' && !formSubmitted && (
+                        <>
+                            {showDoctorList && (
+                                <DoctorList 
+                                    doctors={doctors} 
+                                    selectDoctor={handleDoctorSelect} 
+                                />
+                            )}
+                            {selectedDoctor && (
+                                <FollowUpForm 
+                                    patient={selectedPatient} 
+                                    doctors={doctors}
+                                    showFeeField={showFeeField}  
+                                    onSubmit={handleFormSubmit} 
+                                    selectedDoctor={selectedDoctor}
+                                    formatDate={formatDate}
+                                />
+                            )}
+                        </>
+                    )}
+                    {consultationType === 'consultation' && !formSubmitted && (
+                        <ConsultationForm 
+                            patient={selectedPatient} 
+                            doctors={doctors}
+                            onSubmit={handleFormSubmit} 
+                            formatDate={formatDate}
+                        />
+                    )}
+                    {showQRCode && formSubmitted && (
+                        <QRCodeCard 
+                            qrCodeImage={qrCodeImage} 
+                            fees={consultationFee} 
+                            confirmPayment={confirmPayment}
+                            isProcessingPayment={isProcessingPayment}
+                        />
+                    )}
+                       {consultationResponse && (
+                        <ConsultationDetails 
+                            consultationResponse={consultationResponse}
+                            formatDate={formatDate} // Utility function for date formatting
+                            selectedPatient={selectedPatient} 
+                        />
+                    )}
+                </>
+            )}
+            <Modal 
+                isOpen={modalOpen} 
+                onClose={() => setModalOpen(false)} 
+                onSelect={handleOptionSelect} 
+            />
+        </div>
+    );
+}
 
 export default FollowUp;

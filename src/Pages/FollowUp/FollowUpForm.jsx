@@ -1,22 +1,22 @@
 import React, { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 
-const ConsultationForm = ({ patient, doctors, onSubmit, formatDate}) => {
+const FollowUpForm = ({ patient, doctors, showFeeField, onSubmit, selectedDoctor, formatDate }) => {
     const [fee, setFee] = useState('');
     const [reason, setReason] = useState('');
-    const [selectedDoctor, setSelectedDoctor] = useState('');
+    const [doctor, setDoctor] = useState(selectedDoctor);
 
     useEffect(() => {
-        if (doctors.length > 0) {
-            setSelectedDoctor(doctors[0]._id);  // Auto-select the first doctor if available
-        }
-    }, [doctors]);
+        setDoctor(selectedDoctor);
+    }, [selectedDoctor]);
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        const selectedDoctorInfo = doctors.find(doc => doc._id === selectedDoctor);
+        const selectedDoctorInfo = doctors.find(doc => doc._id === doctor);
         const data = {
             reason,
-            fees: fee,
+            fees: showFeeField ? fee : '0',
             doctorName: selectedDoctorInfo ? selectedDoctorInfo.doctorName : '',
         };
         onSubmit(data);
@@ -26,11 +26,11 @@ const ConsultationForm = ({ patient, doctors, onSubmit, formatDate}) => {
         <form className="registration-form" onSubmit={handleSubmit}>
             <header className="header">
             <i className="fas fa-hospital-alt"></i>
-                <h1>Consultation Form</h1>
+                <h1>Follow-Up Form</h1>
             </header>
 
             <div className="form-group">
-                <label htmlFor="patientName">Patient</label>
+                <label htmlFor="patientName">Patient Name</label>
                 <input
                     id="patientName"
                     type="text"
@@ -40,16 +40,13 @@ const ConsultationForm = ({ patient, doctors, onSubmit, formatDate}) => {
             </div>
 
             <div className="form-group">
-                <label htmlFor="doctor">Doctor <span className="required">*</span></label>
-                <select
+                <label htmlFor="doctor">Doctor Name</label>
+                <input
                     id="doctor"
-                    value={selectedDoctor}
-                    onChange={(e) => setSelectedDoctor(e.target.value)}
-                >
-                    {doctors.map(doc => (
-                        <option key={doc._id} value={doc._id}>{doc.firstName}</option>
-                    ))}
-                </select>
+                    type="text"
+                    value={doctors.find(doc => doc._id === doctor)?.doctorName || ''}
+                    readOnly
+                />
             </div>
 
             <div className="form-group">
@@ -64,25 +61,28 @@ const ConsultationForm = ({ patient, doctors, onSubmit, formatDate}) => {
                     type="text"
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
+                    
                 />
             </div>
 
-            <div className="form-group">
-                <label htmlFor="fee">Fee <span className="required">*</span></label>
-                <input
-                    id="fee"
-                    type="text"
-                    value={fee}
-                    onChange={(e) => setFee(e.target.value)}
-                    required
-                />
-            </div>
+            {showFeeField && (
+                <div className="form-group">
+                    <label htmlFor="fee">Fees <span className="required">*</span></label>
+                    <input
+                        id="fee"
+                        type="text"
+                        value={fee}
+                        onChange={(e) => setFee(e.target.value)}
+                        required
+                    />
+                </div>
+            )}
 
             <button type="submit" className="submit-button">
-                Submit
+                Submit <FontAwesomeIcon icon={faCircleCheck} />
             </button>
         </form>
     );
 };
 
-export default ConsultationForm;
+export default FollowUpForm;

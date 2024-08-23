@@ -1,35 +1,50 @@
-import React from 'react';
-import { TailSpin } from 'react-loader-spinner';
+import React, { useState } from 'react';
+import axios from 'axios';
 
-const PatientSearchForm = ({ formData, handleChange, handleSubmit, isSearching }) => (
-  <div className="registration-form">
-    <div className="header">
+const PatientSearch = ({ setPatients, setSearchCompleted }) => {
+    const [mobileNumber, setMobileNumber] = useState('');
+    const [isSearching, setIsSearching] = useState(false);
+
+    const searchPatient = async (event) => {
+        event.preventDefault();
+        setIsSearching(true);
+        try {
+            const response = await axios.post('https://giostar.onrender.com/registration/getByMobileNumber', {
+                mobile_number: mobileNumber
+            });
+            setPatients(response.data);
+            setSearchCompleted(true);
+        } catch (error) {
+            console.error('Error fetching patient data:', error);
+        } finally {
+            setIsSearching(false);
+        }
+    };
+
+    return (
+        <div className='registration-form'>
+            <div className="header">
       <i className="fas fa-hospital-alt"></i>
       <h2>Patients Follow up & Consultation</h2>
     </div>
-    <form onSubmit={handleSubmit}>
-      <div className="form-group">
-        <label htmlFor="phone">Enter Mobile Number <span className="required">*</span></label>
-        <input
-          type="tel"
-          id="phone"
-          name="mobile_number"
-          value={formData.mobile_number}
-          onChange={handleChange}
-          pattern="\d{10}"
-          title="Please enter 10 digits"
-          required
-        />
-      </div>
-      <button type="submit" disabled={isSearching} className="search-spinner">
-        {isSearching ? (
-          <> <span>Searching</span> <TailSpin color="#fff" height={34} width={44} /> </>
-        ) : (
-          'Submit'
-        )}
-      </button>
-    </form>
-  </div>
-);
+    <div className='form-group'>
+    <form onSubmit={searchPatient}>
+    <label htmlFor="phone">Enter Mobile Number <span className="required">*</span></label>
+            <input 
+                type="tel" 
+                value={mobileNumber} 
+                onChange={(e) => setMobileNumber(e.target.value)} 
+                pattern="\d{10}"
+                maxLength="10"
+                required 
+            />
+              <button type='submit' disabled={isSearching}>
+                        {isSearching ? 'Searching...' : 'Search'}
+                    </button>
+            </form>
+            </div>
+        </div>
+    );
+};
 
-export default PatientSearchForm;
+export default PatientSearch;

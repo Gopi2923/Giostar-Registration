@@ -228,3 +228,31 @@
     justify-content: center;
     gap: 18px;
   }
+
+  .qr-code-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background-color: #fff;
+    max-width: 400px;
+    margin: 20px auto;
+    text-align: center;
+}
+
+.qr-code-card img {
+    margin-bottom: 15px;
+    border-radius: 8px;
+    width: 100%;
+    height: auto;
+    max-width: 350px;
+}
+
+.payment-amount {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 10px;
+}

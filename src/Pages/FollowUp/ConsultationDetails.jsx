@@ -1,6 +1,7 @@
 import React from 'react';
 
-const ConsultationDetails = ({ consultationResponse, formatDate }) => (
+const ConsultationDetails = ({ consultationResponse, formatDate, selectedPatient }) => (
+  
   <div className="booking-details">
     <h1>Consultation Details</h1>
     <div className="booking-details-list">
