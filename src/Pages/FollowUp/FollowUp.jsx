@@ -3,11 +3,18 @@ import './FollowUp.css';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight, faCircleCheck, faCircleLeft, faAnglesLeft, faAnglesRight, faPersonWalkingArrowLoopLeft, faPersonCirclePlus } from '@fortawesome/free-solid-svg-icons';
-import { TailSpin } from 'react-loader-spinner';
-import qrimg from '../../assets/images/qrcode.png';
+import { faCircleLeft } from '@fortawesome/free-solid-svg-icons';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+import qrimg from '../../assets/images/qrcode.png';
+import PatientSearchForm from './PatientSearchForm';
+import PatientList from './PatientList';
+import PatientDetails from './PatientDetails';
+import ConsultationForm from './ConsultationForm';
+import DoctorList from './DoctorList.js.jsx';
+import ConsultationDetails from './ConsultationDetails';
+import Modal from './Modal.jsx';
 
 const FollowUp = () => {
   const [formData, setFormData] = useState({ mobile_number: "" });
@@ -22,9 +29,11 @@ const FollowUp = () => {
   const [modalContent, setModalContent] = useState('');
   const [paymentPending, setPaymentPending] = useState(false);
   const [consultationType, setConsultationType] = useState("");
-  const [consultationResponse, setConsultationResponse] = useState(null); // Add state for consultation response
+  const [consultationResponse, setConsultationResponse] = useState(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
-  const [previousPage, setPreviousPage] = useState(''); // Manage previous page state
+  const [previousPage, setPreviousPage] = useState('');
+  const [doctorList, setDoctorList] = useState([]);
+  const [doctorListVisible, setDoctorListVisible] = useState(false);
 
   const navigate = useNavigate();
 
@@ -34,16 +43,6 @@ const FollowUp = () => {
       const cleanedValue = value.replace(/\D/g, '');
       if (cleanedValue.length <= 10) {
         setFormData({ ...formData, [name]: cleanedValue });
-      }
-    } else if (name === 'doctorName') {
-      const alphaRegex = /^[A-Za-z\s]+$/;
-      if (alphaRegex.test(value) || value === '') {
-        setConsultationData({ ...consultationData, [name]: value });
-      }
-    } else if (name === 'fees') {
-      const numericRegex = /^\d*$/;
-      if (numericRegex.test(value)) {
-        setConsultationData({ ...consultationData, [name]: value });
       }
     } else {
       setConsultationData({ ...consultationData, [name]: value });
@@ -67,6 +66,8 @@ const FollowUp = () => {
   const handlePatientClick = async (patient) => {
     setSelectedPatient(patient);
     setIsVerified(null);
+    setDoctorListVisible(false);
+    setShowConsultationForm(false);
   };
 
   const handleContinue = () => {
@@ -79,31 +80,43 @@ const FollowUp = () => {
     setConsultationType(type);
     setShowModal(false);
     setIsVerifying(true);
+  
+    if(type === 'Follow-Up') {
+      try {
+        const response = await axios.post('https://giostar.onrender.com/consultation/doctorsList', {
+          patientRef: selectedPatient._id,
+        });
+        setDoctorList(response.data);
+        setDoctorListVisible(true);
+        setShowConsultationForm(false); // Ensure the consultation form is hidden
+        setSelectedPatient(null); // Clear the selected patient to move away from the patient details page
+      } catch (error) {
+        console.error('Error fetching doctor list:', error);
+      } finally {
+        setIsVerifying(false);
+      }
+    }
+  };
+  
+
+  const handleDoctorSelection = async (doctor) => {
+    setConsultationData({ ...consultationData, doctorName: `${doctor.doctorName}` });
 
     try {
-      const response = await axios.get(`https://giostar.onrender.com/registration/getRegistration/${selectedPatient._id}`);
+      const response = await axios.get(`https://giostar.onrender.com/consultation/checkFollowUp/${selectedPatient._id}/${doctor._id}`);
       const isFollowUp = response.data.data;
 
       if (isFollowUp) {
-        if (type === 'Follow-Up') {
-          setConsultationData({ ...consultationData, doctorName: selectedPatient.doctorName, fees: 'No fee' });
-        } else {
-          setConsultationData({ ...consultationData, doctorName: '', fees: '' });
-        }
+        setConsultationData({ ...consultationData, fees: 'No fee' });
       } else {
-        if (type === 'Follow-Up') {
-          setConsultationData({ ...consultationData, doctorName: selectedPatient.doctorName, fees: '' });
-        } else {
-          setConsultationData({ ...consultationData, doctorName: '', fees: '' });
-        }
+        setConsultationData({ ...consultationData, fees: '' });
       }
 
       setIsVerified(isFollowUp);
+      setShowConsultationForm(true);
+      setDoctorListVisible(false);
     } catch (error) {
       console.error('Error checking follow-up status:', error);
-    } finally {
-      setIsVerifying(false);
-      setShowConsultationForm(true);
     }
   };
 
@@ -133,7 +146,7 @@ const FollowUp = () => {
     try {
       const response = await axios.post('https://giostar.onrender.com/consultation/add', payload);
       if (response.data._id) {
-        setConsultationResponse(response.data); // Store the response data
+        setConsultationResponse(response.data);
         setModalContent('Consultation booking done.');
         setShowModal(true);
         setShowConsultationForm(false);
@@ -147,9 +160,9 @@ const FollowUp = () => {
   };
 
   const confirmPayment = async () => {
-    setIsProcessingPayment(true)
+    setIsProcessingPayment(true);
     await submitConsultation();
-    setPaymentPending(false)
+    setPaymentPending(false);
     setIsProcessingPayment(false);
   };
 
@@ -164,153 +177,55 @@ const FollowUp = () => {
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
   };
-  
 
   return (
     <div className='registration-container'>
-      <button className="back-btn" onClick={() => navigate('/')}><FontAwesomeIcon icon={faCircleLeft} beat style={{color: "#FFD43B",}} /> Back to Home</button>
+      <button className="back-btn" onClick={() => navigate('/')}>
+        <FontAwesomeIcon icon={faCircleLeft} beat style={{ color: "#FFD43B" }} /> Back to Home
+      </button>
       {consultationResponse ? (
-        <div className="booking-details">
-          <h1>Consultation Details</h1>
-          <div className="booking-details-list">
-          <p><strong>Thank you for booking!</strong></p>
-          {consultationResponse.patientId && <p><strong>Patient ID:</strong> {consultationResponse.patientId}</p>}
-          <p><strong>Patient Name:</strong> {`${selectedPatient.firstName} ${selectedPatient.lastname}`}</p>
-          {consultationResponse.doctorName && <p><strong>Doctor Name:</strong> {consultationResponse.doctorName}</p>}
-          {consultationResponse.reason && <p><strong>Reason:</strong> {consultationResponse.reason}</p>}
-          {consultationResponse.fees &&  <p><strong>Fees:</strong> {consultationResponse.fees}</p>}
-          {consultationResponse.dateOfConsultation && <p><strong>Date of Consultation:</strong> {formatDate(consultationResponse.dateOfConsultation)}</p>}
-        </div>
-        </div>
+        <ConsultationDetails consultationResponse={consultationResponse} formatDate={formatDate} />
+      ) : selectedPatient ? (
+        <PatientDetails
+          selectedPatient={selectedPatient}
+          handleContinue={handleContinue}
+          formatDate={formatDate}
+          setSelectedPatient={setSelectedPatient}
+        />
+      ) : doctorListVisible ? (
+        <DoctorList doctorList={doctorList} handleDoctorSelection={handleDoctorSelection} />
+      ) : showConsultationForm ? (
+        <ConsultationForm
+          selectedPatient={selectedPatient}
+          consultationData={consultationData}
+          handleChange={handleChange}
+          handleConsultationSubmit={handleConsultationSubmit}
+          doctorList={doctorList}
+          consultationType={consultationType}
+          isVerified={isVerified}
+          showConsultationForm={showConsultationForm}
+          previousPage={previousPage}
+        />
+      ) : patients.length === 0 ? (
+        <PatientSearchForm
+          formData={formData}
+          handleChange={handleChange}
+          handleSubmit={handleSubmit}
+          isSearching={isSearching}
+        />
       ) : (
-        selectedPatient ? (
-          showConsultationForm ? (
-            <div className="registration-form">
-              
-    <button onClick={() => {
-      setShowConsultationForm(false);
-      setConsultationType("");
-      if (previousPage === 'details') {
-        setSelectedPatient(selectedPatient);
-      } else {
-        setShowModal(true);
-      }
-    }} className="back-btn">
-      <FontAwesomeIcon icon={faAnglesLeft} fade size='xl'/> Back
-    </button>
-              <div className="header">
-              <i className="fas fa-hospital-alt"></i>
-              <h1>Consultation Form</h1> </div>
-              <form onSubmit={handleConsultationSubmit}>
-                <div className="form-group">
-                  <label htmlFor="patientName">Patient Name</label>
-                  <input type="text" id="patientName" value={`${selectedPatient.firstName} ${selectedPatient.lastname}`} disabled />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="dateOfConsultation">Date of Consultation</label>
-                  <input type="text" id="dateOfConsultation" value={formatDate(new Date())} disabled />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="doctorName">Doctor Name  <span className="required">*</span></label>
-                  <input 
-                    type="text" 
-                    id="doctorName" 
-                    name="doctorName" 
-                    value={consultationData.doctorName} 
-                    onChange={handleChange} 
-                    disabled={(consultationType === 'Follow-Up' && isVerified) || (consultationType === 'Follow-Up' && !isVerified)} 
-                    required 
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="reason">Reason</label>
-                  <textarea id="reason" name="reason" value={consultationData.reason} onChange={handleChange}></textarea>
-                </div>
-                {(consultationType !== 'Follow-Up' || !isVerified) && (
-                  <div className="form-group">
-                    <label htmlFor="fees">Fees <span className="required">*</span></label>
-                    <input type="text" id="fees" name="fees" value={consultationData.fees} onChange={handleChange} required />
-                  </div>
-                )}
-                <button type="submit">Submit</button>
-              </form>
-            </div>
-          ) : (
-            <div className="patients-details">
-              <h1>Patient Details</h1>
-              <div className="patient-details-list">
-                <p><strong>Name:</strong> {`${selectedPatient.firstName} ${selectedPatient.lastname}`}</p>
-                <p><strong>Mobile Number:</strong> {selectedPatient.mobile_number}</p>
-                <p><strong>Email:</strong> {selectedPatient.email}</p>
-                <p><strong>Age:</strong> {selectedPatient.age}</p>
-                <p><strong>Gender:</strong> {selectedPatient.gender}</p>
-                <p><strong>Date of Registration:</strong> {formatDate(selectedPatient.dateOfRegistration)}</p>
-              </div>
-              <div className="button-container">
-                <button onClick={() => setSelectedPatient(null)} className='back-button'><FontAwesomeIcon icon={faAnglesLeft} fade size='xl'/>Back to List</button>
-                <button onClick={handleContinue} className='continue-button'>Continue <FontAwesomeIcon icon={faAnglesRight} fade size='xl'/></button>
-              </div>
-            </div>
-          )
-        ) : (
-          patients.length === 0 ? (
-            <div className="registration-form">
-              <div className="header">
-                <i className="fas fa-hospital-alt"></i>
-                <h2>Patients Follow up & Consultation</h2>
-              </div>
-              <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                  <label htmlFor="phone">Enter Mobile Number <span className="required">*</span></label>
-                  <input type="tel" id="phone" name="mobile_number" value={formData.mobile_number} onChange={handleChange} pattern="\d{10}" title="Please enter 10 digits" required />
-                </div>
-                <button type="submit" disabled={isSearching} className="search-spinner">
-                  {isSearching ? <> <span>Searching</span> <TailSpin color="#fff" height={34} width={44}/> </>: 'Submit'}
-                </button>
-              </form>
-            </div>
-          ) : (
-            <div className="patient-list">
-              <h1>Patient List</h1>
-              <ul>
-                {patients.data.map(patient => (
-                  <li key={patient._id} onClick={() => handlePatientClick(patient)}>
-                    <div className="patient-name">Patient Name: {`${patient.firstName} ${patient.lastname}`}</div>
-                    <FontAwesomeIcon icon={faArrowRight} beat size="2xl" style={{color: "#B197FC",}} />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )
-        )
+        <PatientList patients={patients} handlePatientClick={handlePatientClick} />
       )}
-      {showModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close" onClick={closeModal}>&times;</span>
-            <p>{modalContent}</p>
-            {paymentPending && consultationData.fees.trim() !== "No fee" && consultationData.fees.trim() !== "" && (
-              <div>
-                <img src={qrimg} width={350} alt="QR Code for Payment" />
-                <p>Payment Amount: {consultationData.fees}</p>
-                <button onClick={confirmPayment} type='submit' className='search-spinner' disabled={isProcessingPayment}>
-                 {isProcessingPayment ? <><span>Please Wait</span><TailSpin  color="#fff" height={34} width={44} /></> : 'Confirm Payment'} </button>
-              </div>
-            )}
-            {!paymentPending && consultationType === "" && (
-              <div className="button-containers">
-                <button onClick={() => handleConsultationTypeSelection('Follow-Up')} className='modal-content-btn'><FontAwesomeIcon icon={faPersonWalkingArrowLoopLeft} beat style={{color: "#FFD43B",}} size='xl'/>Follow-Up</button>
-                <button onClick={() => handleConsultationTypeSelection('Consultation')} className='modal-content-btn'><FontAwesomeIcon icon={faPersonCirclePlus} beat size="xl" style={{color: "#FFD43B",}} />Consultation</button>
-              </div>
-            )}
-            {!paymentPending && consultationType !== "" && (
-              <div className="success-icon">
-                <FontAwesomeIcon icon={faCircleCheck} />
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      <Modal 
+        showModal={showModal} 
+        closeModal={closeModal} 
+        modalContent={modalContent} 
+        paymentPending={paymentPending} 
+        confirmPayment={confirmPayment} 
+        isProcessingPayment={isProcessingPayment} 
+        handleConsultationTypeSelection={handleConsultationTypeSelection} 
+        consultationType={consultationType}
+      />
       <ToastContainer />
     </div>
   );
