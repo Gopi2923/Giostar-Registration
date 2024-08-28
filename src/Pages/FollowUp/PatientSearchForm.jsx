@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { TailSpin } from 'react-loader-spinner';
+
 
 const PatientSearch = ({ setPatients, setSearchCompleted }) => {
     const [mobileNumber, setMobileNumber] = useState('');
@@ -29,6 +31,13 @@ const PatientSearch = ({ setPatients, setSearchCompleted }) => {
         }
     };
 
+    const handleInputChange = (e) => {
+        const { value } = e.target;
+        // Only allow numbers
+        if (/^\d*$/.test(value)) {
+            setMobileNumber(value);
+        }
+    };
     return (
         <div className='registration-form'>
             <div className="header">
@@ -41,13 +50,13 @@ const PatientSearch = ({ setPatients, setSearchCompleted }) => {
                     <input 
                         type="tel" 
                         value={mobileNumber} 
-                        onChange={(e) => setMobileNumber(e.target.value)} 
+                        onChange={handleInputChange} 
                         pattern="\d{10}"
                         maxLength="10"
                         required 
                     />
                     <button type='submit' disabled={isSearching}>
-                        {isSearching ? 'Searching...' : 'Search'}
+                        {isSearching ? <> <span>Searching</span>  <TailSpin color="#fff" height={34} width={44}/> </>: 'Search'}
                     </button>
                 </form>
             </div>
