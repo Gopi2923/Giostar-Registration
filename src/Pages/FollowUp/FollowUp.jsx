@@ -92,35 +92,37 @@ function FollowUp() {
     }, [consultationType, selectedDoctor]);
 
     const handleFormSubmit = (formData) => {
-        setConsultationFee(formData.fees); 
-        setSelectedDoctorId(formData.doctorRef)
-        setQrCodeImage('./../../assets/images/QR code img.jpeg'); 
-        setShowQRCode(true);
+        if (showFeeField) {
+            setConsultationFee(formData.fees); 
+            setSelectedDoctorId(formData.doctorRef);
+            setQrCodeImage('./../../assets/images/QR code img.jpeg'); 
+            setShowQRCode(true);
+        } else {
+            submitFormData(formData);
+        }
         setFormSubmitted(true);
         setSubmittedFormData(formData);
     };
 
-    const confirmPayment = () => {
-        if (!submittedFormData) return;
+    const submitFormData = (formData) => {
         setIsProcessingPayment(true);
         const payload = {
             patientId: selectedPatient.patientId,
             patientRef: selectedPatient._id,
-            doctorRef: selctedDoctorId,
-            reason: submittedFormData.reason, // This should be filled with the actual reason from the form
-            fees: consultationFee,
-            status: consultationFee === "No fee" ? "No fee" : "Paid",
+            doctorRef: formData.doctorRef,
+            reason: formData.reason,
+            fees: formData.fees,
+            status: formData.fees === "No fee" ? "No fee" : "Paid",
             type: consultationType,
-            doctorName: submittedFormData.doctorName, // This should be filled with the actual doctor name from the form
+            doctorName: formData.doctorName,
             dateOfConsultation: new Date().toISOString().split('T')[0],
         };
 
         axios.post('https://giostar.onrender.com/consultation/add', payload)
             .then(response => {
                 setIsProcessingPayment(false);
-                setConsultationResponse(response.data); // Save the response data to show in the UI
-                setShowQRCode(false); // Hide the QR code after payment confirmation
-                // Handle post-payment success actions here
+                setConsultationResponse(response.data);
+                setShowQRCode(false);
             })
             .catch(error => {
                 setIsProcessingPayment(false);
@@ -129,6 +131,11 @@ function FollowUp() {
             });
     };
 
+    const confirmPayment = () => {
+        if (!submittedFormData) return;
+        submitFormData(submittedFormData);
+    };
+    
     console.log('res',consultationResponse)
     const formatDate = (dateString) => {
         const date = new Date(dateString);

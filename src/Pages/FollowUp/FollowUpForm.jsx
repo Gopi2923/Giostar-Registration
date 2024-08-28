@@ -10,7 +10,7 @@ const FollowUpForm = ({ patient, selectedDoctor, showFeeField, onSubmit, formatD
         event.preventDefault();
         const data = {
             reason,
-            fees: showFeeField ? fee : '0',
+            fees: showFeeField ? fee : 'No Fee',
             doctorName: selectedDoctor.doctorName, // Directly use the doctor's name
             doctorRef: selectedDoctor.doctorRef, // Include the doctor's ID for submission
         };
