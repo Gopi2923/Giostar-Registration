@@ -10,8 +10,8 @@ const FollowUpConsultationModal = ({ isOpen, onClose, onSelect }) => {
                 <span className="close" onClick={onClose}>&times;</span>
                 <h2>Select an Option</h2>
                 <div className="button-containers">
-                    <button onClick={() => onSelect('follow-up')} className='modal-content-btn'>Follow-Up</button>
-                    <button onClick={() => onSelect('consultation')} className='modal-content-btn'>Consultation</button>
+                    <button onClick={() => onSelect('FollowUp')} className='modal-content-btn'>Follow-Up</button>
+                    <button onClick={() => onSelect('Consultation')} className='modal-content-btn'>Consultation</button>
                 </div>
             </div>
         </div>

@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 
-const ConsultationForm = ({ patient, doctors, onSubmit, formatDate}) => {
+const ConsultationForm = ({ patient, doctors, onSubmit, formatDate }) => {
     const [fee, setFee] = useState('');
     const [reason, setReason] = useState('');
     const [selectedDoctor, setSelectedDoctor] = useState('');
 
     useEffect(() => {
-        if (doctors.length > 0) {
-            setSelectedDoctor(doctors[0]._id);  // Auto-select the first doctor if available
+        if (doctors.length > 0 && !selectedDoctor) {
+            // Optionally, set a default doctor if needed, otherwise keep it empty
+            // setSelectedDoctor(doctors[0]._id);
         }
-    }, [doctors]);
+    }, [doctors, selectedDoctor]);
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -17,20 +18,23 @@ const ConsultationForm = ({ patient, doctors, onSubmit, formatDate}) => {
         const data = {
             reason,
             fees: fee,
-            doctorName: selectedDoctorInfo ? selectedDoctorInfo.doctorName : '',
+            doctorRef:selectedDoctor,
+            doctorName: selectedDoctorInfo ? `${selectedDoctorInfo.firstName}` : '',
         };
         onSubmit(data);
     };
 
+    console.log("Selected Doctor ID:", selectedDoctor);
+
     return (
         <form className="registration-form" onSubmit={handleSubmit}>
             <header className="header">
-            <i className="fas fa-hospital-alt"></i>
+                <i className="fas fa-hospital-alt"></i>
                 <h1>Consultation Form</h1>
             </header>
 
             <div className="form-group">
-                <label htmlFor="patientName">Patient</label>
+                <label htmlFor="patientName">Patient Name</label>
                 <input
                     id="patientName"
                     type="text"
@@ -40,12 +44,14 @@ const ConsultationForm = ({ patient, doctors, onSubmit, formatDate}) => {
             </div>
 
             <div className="form-group">
-                <label htmlFor="doctor">Doctor <span className="required">*</span></label>
+                <label htmlFor="doctor">Doctor Name<span className="required">*</span></label>
                 <select
                     id="doctor"
                     value={selectedDoctor}
+                    required
                     onChange={(e) => setSelectedDoctor(e.target.value)}
                 >
+                    <option value="">Select a doctor</option>
                     {doctors.map(doc => (
                         <option key={doc._id} value={doc._id}>{doc.firstName}</option>
                     ))}
@@ -53,9 +59,9 @@ const ConsultationForm = ({ patient, doctors, onSubmit, formatDate}) => {
             </div>
 
             <div className="form-group">
-          <label htmlFor="dateOfConsultation">Date of Consultation</label>
-          <input type="text" id="dateOfConsultation" value={formatDate(new Date())} disabled />
-        </div>
+                <label htmlFor="dateOfConsultation">Date of Consultation</label>
+                <input type="text" id="dateOfConsultation" value={formatDate(new Date())} disabled />
+            </div>
 
             <div className="form-group">
                 <label htmlFor="reason">Reason</label>
@@ -68,7 +74,7 @@ const ConsultationForm = ({ patient, doctors, onSubmit, formatDate}) => {
             </div>
 
             <div className="form-group">
-                <label htmlFor="fee">Fee <span className="required">*</span></label>
+                <label htmlFor="fee">Fee<span className="required">*</span></label>
                 <input
                     id="fee"
                     type="text"

@@ -22,6 +22,7 @@ const FollowUpForm = ({ patient, doctors, showFeeField, onSubmit, selectedDoctor
         onSubmit(data);
     };
 
+    console.log("Selected Doctor ID:", selectedDoctor);
     return (
         <form className="registration-form" onSubmit={handleSubmit}>
             <header className="header">
@@ -67,7 +68,7 @@ const FollowUpForm = ({ patient, doctors, showFeeField, onSubmit, selectedDoctor
 
             {showFeeField && (
                 <div className="form-group">
-                    <label htmlFor="fee">Fees <span className="required">*</span></label>
+                    <label htmlFor="fee">Fee<span className="required">*</span></label>
                     <input
                         id="fee"
                         type="text"

@@ -5,7 +5,7 @@ import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
 const DoctorList = ({ doctors, selectDoctor }) => {
     if (!doctors || doctors.length === 0) {
-        return <p>No doctors available</p>;  // Fallback if no doctors are found
+        return <h1>No doctors available</h1>;  // Fallback if no doctors are found
     }
 
     return (

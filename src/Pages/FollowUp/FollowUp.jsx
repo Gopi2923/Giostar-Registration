@@ -32,6 +32,8 @@ function FollowUp() {
     const [consultationFee, setConsultationFee] = useState(''); 
     const [isProcessingPayment, setIsProcessingPayment] = useState(false); 
     const [consultationResponse, setConsultationResponse] = useState(null); // New state for consultation details
+    const [selctedDoctorId, setSelectedDoctorId] = useState('');
+    const [submittedFormData, setSubmittedFormData] = useState(null);
 
     const navigate = useNavigate();
 
@@ -51,16 +53,16 @@ function FollowUp() {
     };
 
     const fetchDoctors = (type) => {
-        const endpoint = type === 'follow-up'
+        const endpoint = type === 'FollowUp'
             ? 'https://giostar.onrender.com/consultation/doctorsList'
             : 'https://giostar.onrender.com/doctor-info/getAll';
 
         axios.post(endpoint, { patientRef: selectedPatient._id })
             .then(response => {
                 setDoctors(response.data.data);
-                setSelectedDoctor('');
-                setShowFeeField(type === 'follow-up' ? false : true);
-                if (type === 'follow-up') {
+                setSelectedDoctor(null);
+                setShowFeeField(type === 'FollowUp' ? false : true);
+                if (type === 'FollowUp') {
                     setShowDoctorList(true); 
                 }
             })
@@ -70,39 +72,44 @@ function FollowUp() {
     };
 
     const handleDoctorSelect = (doctor) => {
-        setSelectedDoctor(doctor._id);
+        console.log('Doctor selected:', doctor);
+        setSelectedDoctor(doctor);
         setShowDoctorList(false); 
     };
 
     useEffect(() => {
-        if (consultationType === 'follow-up' && selectedPatient && selectedDoctor) {
-            axios.get(`https://giostar.onrender.com/consultation/checkFollowUp/${selectedPatient._id}/${selectedDoctor}`)
+        if (consultationType === 'FollowUp' && selectedDoctor) {
+            axios.get(`https://giostar.onrender.com/consultation/checkFollowUp/${selectedDoctor.patientRef}/${selectedDoctor.doctorRef}`)
                 .then(response => {
                     setShowFeeField(!response.data.data); 
                 })
                 .catch(error => {
-                    console.error('Error checking follow-up:', error);
+                    console.error('Error checking FollowUp:', error);
                 });
         }
-    }, [consultationType, selectedPatient, selectedDoctor]);
+    }, [consultationType, selectedDoctor]);
 
     const handleFormSubmit = (formData) => {
         setConsultationFee(formData.fees); 
+        setSelectedDoctorId(formData.doctorRef)
         setQrCodeImage('./../../assets/images/QR code img.jpeg'); 
         setShowQRCode(true);
         setFormSubmitted(true);
+        setSubmittedFormData(formData);
     };
 
     const confirmPayment = () => {
+        if (!submittedFormData) return;
         setIsProcessingPayment(true);
         const payload = {
             patientId: selectedPatient.patientId,
             patientRef: selectedPatient._id,
-            reason: '', // This should be filled with the actual reason from the form
+            doctorRef: selctedDoctorId,
+            reason: submittedFormData.reason, // This should be filled with the actual reason from the form
             fees: consultationFee,
-            status: consultationFee === "No fee" || consultationFee.trim() === "" ? "Paid" : "Yet to pay",
+            status: consultationFee === "No fee" ? "No fee" : "Paid",
             type: consultationType,
-            doctorName: '', // This should be filled with the actual doctor name from the form
+            doctorName: submittedFormData.doctorName, // This should be filled with the actual doctor name from the form
             dateOfConsultation: new Date().toISOString().split('T')[0],
         };
 
@@ -111,7 +118,6 @@ function FollowUp() {
                 setIsProcessingPayment(false);
                 setConsultationResponse(response.data); // Save the response data to show in the UI
                 setShowQRCode(false); // Hide the QR code after payment confirmation
-                // alert('Payment confirmed and consultation recorded!');
                 // Handle post-payment success actions here
             })
             .catch(error => {
@@ -121,6 +127,7 @@ function FollowUp() {
             });
     };
 
+    console.log('res',consultationResponse)
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         const day = String(date.getDate()).padStart(2, '0');
@@ -128,6 +135,10 @@ function FollowUp() {
         const year = date.getFullYear();
         return `${day}/${month}/${year}`;
       };
+
+      console.log("_id",selctedDoctorId)
+      console.log('docName', submittedFormData)
+      console.log('obj', selectedDoctor)
     return (
         <div className='registration-container'>
              <button className="back-btn" onClick={() => navigate('/')}>
@@ -152,7 +163,7 @@ function FollowUp() {
                             formatDate={formatDate}
                         />
                     )}
-                    {consultationType === 'follow-up' && !formSubmitted && (
+                    {consultationType === 'FollowUp' && !formSubmitted && (
                         <>
                             {showDoctorList && (
                                 <DoctorList 
@@ -172,12 +183,13 @@ function FollowUp() {
                             )}
                         </>
                     )}
-                    {consultationType === 'consultation' && !formSubmitted && (
+                    {consultationType === 'Consultation' && !formSubmitted && (
                         <ConsultationForm 
                             patient={selectedPatient} 
                             doctors={doctors}
                             onSubmit={handleFormSubmit} 
                             formatDate={formatDate}
+                            selectedDoctor={selectedDoctor}
                         />
                     )}
                     {showQRCode && formSubmitted && (
