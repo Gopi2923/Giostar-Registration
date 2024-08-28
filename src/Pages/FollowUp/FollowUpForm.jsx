@@ -2,27 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 
-const FollowUpForm = ({ patient, doctors, showFeeField, onSubmit, selectedDoctor, formatDate }) => {
+const FollowUpForm = ({ patient, selectedDoctor, showFeeField, onSubmit, formatDate }) => {
     const [fee, setFee] = useState('');
     const [reason, setReason] = useState('');
-    const [doctor, setDoctor] = useState(selectedDoctor);
-
-    useEffect(() => {
-        setDoctor(selectedDoctor);
-    }, [selectedDoctor]);
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        const selectedDoctorInfo = doctors.find(doc => doc._id === doctor);
         const data = {
             reason,
             fees: showFeeField ? fee : '0',
-            doctorName: selectedDoctorInfo ? selectedDoctorInfo.doctorName : '',
+            doctorName: selectedDoctor.doctorName, // Directly use the doctor's name
+            doctorRef: selectedDoctor.doctorRef, // Include the doctor's ID for submission
         };
         onSubmit(data);
     };
 
-    console.log("Selected Doctor ID:", selectedDoctor);
     return (
         <form className="registration-form" onSubmit={handleSubmit}>
             <header className="header">
@@ -45,15 +39,15 @@ const FollowUpForm = ({ patient, doctors, showFeeField, onSubmit, selectedDoctor
                 <input
                     id="doctor"
                     type="text"
-                    value={doctors.find(doc => doc._id === doctor)?.doctorName || ''}
+                    value={selectedDoctor.doctorName} // Directly display the selected doctor's name
                     readOnly
                 />
             </div>
 
             <div className="form-group">
-          <label htmlFor="dateOfConsultation">Date of Consultation</label>
-          <input type="text" id="dateOfConsultation" value={formatDate(new Date())} disabled />
-        </div>
+                <label htmlFor="dateOfConsultation">Date of Consultation</label>
+                <input type="text" id="dateOfConsultation" value={formatDate(new Date())} disabled />
+            </div>
 
             <div className="form-group">
                 <label htmlFor="reason">Reason</label>
@@ -62,7 +56,6 @@ const FollowUpForm = ({ patient, doctors, showFeeField, onSubmit, selectedDoctor
                     type="text"
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
-                    
                 />
             </div>
 
