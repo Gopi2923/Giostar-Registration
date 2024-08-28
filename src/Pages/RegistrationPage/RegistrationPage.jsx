@@ -60,7 +60,7 @@ const formatDateForPayload = (date) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'firstName' || name === 'middleName' || name === 'lastName' || name === 'city' || name === 'state' || name === 'category' || name === 'reason' || name === 'doctorName') {
+    if (name === 'firstName' || name === 'middleName' || name === 'lastname' || name === 'city' || name === 'state' || name === 'category' || name === 'reason' || name === 'doctorName') {
       const cleanedValue = value.replace(/[^a-zA-Z\s]/g, ''); // Remove non-letter characters
       setFormData({
         ...formData,
