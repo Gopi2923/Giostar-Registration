@@ -68,6 +68,8 @@ function FollowUp() {
             })
             .catch(error => {
                 console.error('Error fetching doctor list:', error);
+                setDoctors([]); 
+                setShowDoctorList(true);
             });
     };
 
