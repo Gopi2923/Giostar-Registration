@@ -155,8 +155,32 @@ button[type="button"]:hover {
   border-radius: 25px;
   cursor: pointer;
   font-size: 30px;
-  font-family: 'Nunito';
+  font-family: 'Nunito', sans-serif;
+  z-index: 999; /* Ensure it's above other elements */
 }
+
+/* Media Query for Larger Screens (15-inch and above) */
+@media (min-width: 1440px) and (max-width: 1920px) {
+  .back-btn {
+    width: 205px; /* Adjust button width */
+    height: 80px; /* Adjust button height */
+    top: 40px; /* Adjust the top position */
+    left: 30px; /* Adjust the left position */
+    font-size: 25px; /* Adjust font size */
+  }
+}
+
+/* Media Query for smaller screens to prevent overlap */
+@media (max-width: 1439px) {
+  .back-btn {
+    width: 180px; /* Reduce button width */
+    height: 70px; /* Reduce button height */
+    top: 15px; /* Adjust the top position */
+    left: 15px; /* Adjust the left position */
+    font-size: 20px; /* Adjust font size */
+  }
+}
+
 
 .back-btn:hover {
   background-color: #0056b3;

@@ -18,10 +18,18 @@
 
 .logo {
   width: 100%;
+  max-width: 200px;
+  height: 200px;
+  margin-bottom: 0px;
+  margin-top: 50px;
+}
+
+/* .logo {
+  width: 100%;
   max-width: 400px;
   height: auto;
   margin-bottom: 10px;
-}
+} */
 
 .title {
   font-family: "Nunito", sans-serif;

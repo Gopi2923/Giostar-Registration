@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './HomePage.css';
-import logo from '../../assets/images/logo-01.png';
+import logo from '../../assets/images/Final logo-1.png';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
