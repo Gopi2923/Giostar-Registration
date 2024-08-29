@@ -2,9 +2,9 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
-const DoctorList = ({ doctors, selectDoctor }) => {
+const DoctorList = ({ doctors, selectDoctor }) => { 
     if (!doctors || doctors.length === 0) {
-        return <h1>No doctors available</h1>;  // Fallback if no doctors are found
+        return <h2>Please Consult Doctor Before Followup</h2>;  // Fallback if no doctors are found
     }
 
     return (

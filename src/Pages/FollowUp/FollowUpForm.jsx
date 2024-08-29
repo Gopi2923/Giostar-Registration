@@ -49,6 +49,11 @@ const FollowUpForm = ({ patient, selectedDoctor, showFeeField, onSubmit, formatD
                     readOnly
                 />
             </div>
+            
+            <div className='form-group'>
+                <label htmlFor='lastConsultedDate'>Last Consulted Date</label>
+                <input type="text" id='lastConsultedDate' readOnly value={formatDate(selectedDoctor.lastConsultedDate)} />
+            </div>
 
             <div className="form-group">
                 <label htmlFor="dateOfConsultation">Date of Consultation</label>
