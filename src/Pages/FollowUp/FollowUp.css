@@ -256,3 +256,7 @@
     font-weight: bold;
     margin-top: 10px;
 }
+
+.fallback-message {
+  text-align: center;
+}

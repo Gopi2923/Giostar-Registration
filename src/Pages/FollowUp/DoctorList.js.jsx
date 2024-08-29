@@ -1,10 +1,15 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
+import { faArrowRight, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 
 const DoctorList = ({ doctors, selectDoctor }) => { 
     if (!doctors || doctors.length === 0) {
-        return <h2>Please Consult Doctor Before Followup</h2>;  // Fallback if no doctors are found
+        return (
+            <div className="fallback-message">
+                <FontAwesomeIcon icon={faExclamationTriangle} size="5x" style={{ color: "#FF6347", marginRight: "10px" }} />
+                <h1>Please Consult Doctor Before Followup</h1>
+            </div>
+        );
     }
 
     return (
