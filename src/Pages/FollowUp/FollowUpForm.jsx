@@ -17,6 +17,12 @@ const FollowUpForm = ({ patient, selectedDoctor, showFeeField, onSubmit, formatD
         onSubmit(data);
     };
 
+    const handleInputChange = (e) => {
+        const {value} = e.target 
+        if(/^\d*$/.test(value)) {
+            setFee(value);
+        }
+    }
     return (
         <form className="registration-form" onSubmit={handleSubmit}>
             <header className="header">
@@ -66,7 +72,7 @@ const FollowUpForm = ({ patient, selectedDoctor, showFeeField, onSubmit, formatD
                         id="fee"
                         type="text"
                         value={fee}
-                        onChange={(e) => setFee(e.target.value)}
+                        onChange={handleInputChange}
                         required
                     />
                 </div>

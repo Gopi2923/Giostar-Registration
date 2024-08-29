@@ -8,7 +8,7 @@ const ConsultationDetails = ({ consultationResponse, formatDate, selectedPatient
       <p><strong>Thank you for booking!</strong></p>
       {consultationResponse.patientId && <p><strong>Patient ID:</strong> {consultationResponse.patientId}</p>}
       <p><strong>Patient Name:</strong> {`${selectedPatient.firstName} ${selectedPatient.lastname}`}</p>
-      {consultationResponse.doctorName && <p><strong>Doctor Name:</strong> {consultationResponse.doctorName}</p>}
+      {consultationResponse.doctorName && <p><strong>Doctor Name: Dr.</strong> {consultationResponse.doctorName}</p>}
       {consultationResponse.reason && <p><strong>Reason:</strong> {consultationResponse.reason}</p>}
       {consultationResponse.fees && <p><strong>Fees:</strong> {consultationResponse.fees}</p>}
       {consultationResponse.dateOfConsultation && <p><strong>Date of Consultation:</strong> {formatDate(consultationResponse.dateOfConsultation)}</p>}

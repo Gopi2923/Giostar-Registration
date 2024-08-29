@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 
 const ConsultationForm = ({ patient, doctors, onSubmit, formatDate }) => {
     const [fee, setFee] = useState('');
@@ -24,6 +26,12 @@ const ConsultationForm = ({ patient, doctors, onSubmit, formatDate }) => {
         onSubmit(data);
     };
 
+    const handleInputChange = (e) => {
+        const {value} = e.target;
+        if(/^\d*$/.test(value)) {
+            setFee(value);
+        }
+    }
     console.log("Selected Doctor ID:", selectedDoctor);
 
     return (
@@ -79,13 +87,13 @@ const ConsultationForm = ({ patient, doctors, onSubmit, formatDate }) => {
                     id="fee"
                     type="text"
                     value={fee}
-                    onChange={(e) => setFee(e.target.value)}
+                    onChange={handleInputChange}
                     required
                 />
             </div>
 
             <button type="submit" className="submit-button">
-                Submit
+                Submit <FontAwesomeIcon icon={faCircleCheck} />
             </button>
         </form>
     );
