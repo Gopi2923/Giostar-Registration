@@ -15,8 +15,8 @@ const FollowUpForm = ({ patient, selectedDoctor, showFeeField, onSubmit, formatD
             doctorName: selectedDoctor.doctorName,
             doctorRef: selectedDoctor.doctorRef,
             day: selectedTimeslot?.day, // Include the selected timeslot day
-            startTime: selectedTimeslot?.startTime, // Include the selected timeslot start time
-            endTime: selectedTimeslot?.endTime, // Include the selected timeslot end time
+            startTime: selectedTimeslot?.startTime,
+            endTime: selectedTimeslot?.endTime,
         };
         onSubmit(data);
     };
