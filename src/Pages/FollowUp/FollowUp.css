@@ -260,3 +260,8 @@
 .fallback-message {
   text-align: center;
 }
+
+.error-message {
+  font-size: 2.4em;
+  font-weight: bolder;
+}

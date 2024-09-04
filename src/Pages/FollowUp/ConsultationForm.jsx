@@ -6,33 +6,62 @@ const ConsultationForm = ({ patient, doctors, onSubmit, formatDate }) => {
     const [fee, setFee] = useState('');
     const [reason, setReason] = useState('');
     const [selectedDoctor, setSelectedDoctor] = useState('');
+    const [availableSlots, setAvailableSlots] = useState([]);
+    const [selectedSlot, setSelectedSlot] = useState('');
 
     useEffect(() => {
-        if (doctors.length > 0 && !selectedDoctor) {
-            // Optionally, set a default doctor if needed, otherwise keep it empty
-            // setSelectedDoctor(doctors[0]._id);
+        if (selectedDoctor) {
+            const selectedDoctorInfo = doctors.find(doc => doc.doctorId === selectedDoctor);
+            if (selectedDoctorInfo && selectedDoctorInfo.availableSlots.length > 0) {
+                setAvailableSlots(selectedDoctorInfo.availableSlots);
+            } else {
+                setAvailableSlots([]);
+            }
+        } else {
+            setAvailableSlots([]);
         }
-    }, [doctors, selectedDoctor]);
+    }, [selectedDoctor, doctors]);
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        const selectedDoctorInfo = doctors.find(doc => doc._id === selectedDoctor);
+    
+        const selectedDoctorInfo = doctors.find(doc => doc.doctorId === selectedDoctor);
+    
+        if (!selectedDoctorInfo || !selectedDoctorInfo.availableSlots || selectedDoctorInfo.availableSlots.length === 0) {
+            alert('No available slots for the selected doctor.');
+            return;
+        }
+    
+        const selectedSlotInfo = selectedDoctorInfo.availableSlots.find(slot => 
+            `${slot.startTime} - ${slot.endTime}` === selectedSlot
+        );
+    
+        if (!selectedSlotInfo) {
+            alert('Please select a valid time slot.');
+            return;
+        }
+    
         const data = {
             reason,
             fees: fee,
-            doctorRef:selectedDoctor,
-            doctorName: selectedDoctorInfo ? `${selectedDoctorInfo.firstName}` : '',
+            doctorRef: selectedDoctor,
+            doctorName: selectedDoctorInfo.firstName,
+            day: selectedSlotInfo.day, // Assuming 'day' is part of the availableSlots
+            startTime: selectedSlotInfo.startTime,
+            endTime: selectedSlotInfo.endTime,
         };
+    
         onSubmit(data);
     };
+    
+    
 
     const handleInputChange = (e) => {
-        const {value} = e.target;
-        if(/^\d*$/.test(value)) {
+        const { value } = e.target;
+        if (/^\d*$/.test(value)) {
             setFee(value);
         }
-    }
-    console.log("Selected Doctor ID:", selectedDoctor);
+    };
 
     return (
         <form className="registration-form" onSubmit={handleSubmit}>
@@ -61,10 +90,29 @@ const ConsultationForm = ({ patient, doctors, onSubmit, formatDate }) => {
                 >
                     <option value="">Select a doctor</option>
                     {doctors.map(doc => (
-                        <option key={doc._id} value={doc._id}>{doc.firstName}</option>
+                        <option key={doc.doctorId} value={doc.doctorId}>{doc.firstName} {doc.lastName}</option>
                     ))}
                 </select>
             </div>
+
+            {availableSlots.length > 0 && (
+                <div className="form-group">
+                    <label htmlFor="slot">Select Time Slot<span className="required">*</span></label>
+                    <select
+                        id="slot"
+                        value={selectedSlot}
+                        required
+                        onChange={(e) => setSelectedSlot(e.target.value)}
+                    >
+                        <option value="">Select a time slot</option>
+                        {availableSlots.map((slot, index) => (
+                            <option key={index} value={`${slot.startTime} - ${slot.endTime}`}>
+                                {`${slot.startTime} - ${slot.endTime}`}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            )}
 
             <div className="form-group">
                 <label htmlFor="dateOfConsultation">Date of Consultation</label>

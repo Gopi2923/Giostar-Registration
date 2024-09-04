@@ -13,14 +13,14 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleLeft } from '@fortawesome/free-solid-svg-icons';
-
+import { ToastContainer, toast } from 'react-toastify';
 
 function FollowUp() {
     const [patients, setPatients] = useState([]);
     const [selectedPatient, setSelectedPatient] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
     const [doctors, setDoctors] = useState([]);
-    const [selectedDoctor, setSelectedDoctor] = useState('');
+    const [selectedDoctor, setSelectedDoctor] = useState(null);
     const [showQRCode, setShowQRCode] = useState(false);
     const [qrCodeImage, setQrCodeImage] = useState('');
     const [showFeeField, setShowFeeField] = useState(false);
@@ -31,9 +31,11 @@ function FollowUp() {
     const [formSubmitted, setFormSubmitted] = useState(false);  
     const [consultationFee, setConsultationFee] = useState(''); 
     const [isProcessingPayment, setIsProcessingPayment] = useState(false); 
-    const [consultationResponse, setConsultationResponse] = useState(null); // New state for consultation details
-    const [selctedDoctorId, setSelectedDoctorId] = useState('');
+    const [consultationResponse, setConsultationResponse] = useState(null);
+    const [selectedDoctorId, setSelectedDoctorId] = useState('');
     const [submittedFormData, setSubmittedFormData] = useState(null);
+    const [availableTimeslots, setAvailableTimeslots] = useState([]); // State for available timeslots
+    const [errorMessage, setErrorMessage] = useState(''); // State for error message
 
     const navigate = useNavigate();
 
@@ -55,28 +57,71 @@ function FollowUp() {
     const fetchDoctors = (type) => {
         const endpoint = type === 'FollowUp'
             ? 'https://giostar.onrender.com/consultation/doctorsList'
-            : 'https://giostar.onrender.com/doctor-info/getAll';
-
-        axios.post(endpoint, { patientRef: selectedPatient._id })
-            .then(response => {
-                setDoctors(response.data.data);
+            : 'https://giostar.onrender.com/consultation/available-doctors';
+    
+        const fetchData = async () => {
+            try {
+                let response;
+    
+                if (type === 'FollowUp') {
+                    response = await axios.post(endpoint, {
+                        patientRef: selectedPatient._id // Adjust as necessary
+                    });
+                } else {
+                    response = await axios.get(endpoint);
+                }
+    
+                const doctors = type === 'FollowUp' 
+                    ? response.data.data 
+                    : response.data.availableSlots || [];
+    
+                setDoctors(doctors);
                 setSelectedDoctor(null);
-                setShowFeeField(type === 'FollowUp' ? false : true);
+                setShowFeeField(type !== 'FollowUp');
+                setErrorMessage(''); // Clear error message
+                
                 if (type === 'FollowUp') {
                     setShowDoctorList(true); 
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 console.error('Error fetching doctor list:', error);
-                setDoctors([]); 
+                setDoctors([]);
                 setShowDoctorList(true);
-            });
+                setErrorMessage('Failed to fetch doctors. Please try again later.');
+            }
+        };
+    
+        fetchData();
     };
 
     const handleDoctorSelect = (doctor) => {
         console.log('Doctor selected:', doctor);
         setSelectedDoctor(doctor);
-        setShowDoctorList(false); 
+        setShowDoctorList(false);
+        
+        // Fetch available timeslots for the selected doctor
+        axios.get(`https://giostar.onrender.com/consultation/check-availability/${doctor.doctorRef}`)
+            .then(response => {
+                // Debugging statement to inspect the response
+                console.log('Available timeslots response:', response);
+                const timeSlots = response.data?.availableSlots || [];
+                if (timeSlots.length > 0) {
+                    setAvailableTimeslots(timeSlots); // Store available timeslots in state
+                    setErrorMessage(''); // Clear error message
+                } else {
+                    console.warn('No timeslots data found in response');
+                    setAvailableTimeslots([]); // Clear timeslots if no data is found
+                    setErrorMessage('No available slots for the selected doctor.'); // Set error message
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching available timeslots:', error);
+                if (error.response && error.response.status === 404) {
+                    toast.error('Doctor is not available for Today');
+                }
+                setAvailableTimeslots([]); // Clear timeslots on error
+                setErrorMessage('Doctor is not available for Today'); // Set error message
+            });
     };
 
     useEffect(() => {
@@ -115,6 +160,9 @@ function FollowUp() {
             status: formData.fees === "No fee" ? "No fee" : "Paid",
             type: consultationType,
             doctorName: formData.doctorName,
+            day: formData.day,
+            startTime: formData.startTime,
+            endTime: formData.endTime,
             dateOfConsultation: new Date().toISOString().split('T')[0],
         };
 
@@ -135,24 +183,20 @@ function FollowUp() {
         if (!submittedFormData) return;
         submitFormData(submittedFormData);
     };
-    
-    console.log('res',consultationResponse)
+
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         const day = String(date.getDate()).padStart(2, '0');
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = date.getFullYear();
         return `${day}/${month}/${year}`;
-      };
+    };
 
-      console.log("_id",selctedDoctorId)
-      console.log('docName', submittedFormData)
-      console.log('obj', selectedDoctor)
     return (
         <div className='registration-container'>
-             <button className="back-btn" onClick={() => navigate('/')}>
-        <FontAwesomeIcon icon={faCircleLeft} beat style={{ color: "#FFD43B" }} /> Back to Home
-      </button>
+            <button className="back-btn" onClick={() => navigate('/')}>
+                <FontAwesomeIcon icon={faCircleLeft} beat style={{ color: "#FFD43B" }} /> Back to Home
+            </button>
             {!selectedPatient ? (
                 <>
                     {!searchCompleted && (
@@ -180,7 +224,12 @@ function FollowUp() {
                                     selectDoctor={handleDoctorSelect} 
                                 />
                             )}
-                            {selectedDoctor && (
+                            {errorMessage && (
+                                <div className="error-message">
+                                    {errorMessage}
+                                </div>
+                            )}
+                            {selectedDoctor && availableTimeslots.length > 0 &&(
                                 <FollowUpForm 
                                     patient={selectedPatient} 
                                     doctors={doctors}
@@ -188,6 +237,7 @@ function FollowUp() {
                                     onSubmit={handleFormSubmit} 
                                     selectedDoctor={selectedDoctor}
                                     formatDate={formatDate}
+                                    availableTimeslots={availableTimeslots}
                                 />
                             )}
                         </>
@@ -209,7 +259,7 @@ function FollowUp() {
                             isProcessingPayment={isProcessingPayment}
                         />
                     )}
-                       {consultationResponse && (
+                    {consultationResponse && (
                         <ConsultationDetails 
                             consultationResponse={consultationResponse}
                             formatDate={formatDate} // Utility function for date formatting
@@ -223,6 +273,7 @@ function FollowUp() {
                 onClose={() => setModalOpen(false)} 
                 onSelect={handleOptionSelect} 
             />
+            <ToastContainer />
         </div>
     );
 }

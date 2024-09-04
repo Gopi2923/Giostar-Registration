@@ -1,32 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 
-const FollowUpForm = ({ patient, selectedDoctor, showFeeField, onSubmit, formatDate }) => {
+const FollowUpForm = ({ patient, selectedDoctor, showFeeField, onSubmit, formatDate, availableTimeslots }) => {
     const [fee, setFee] = useState('');
     const [reason, setReason] = useState('');
+    const [selectedTimeslot, setSelectedTimeslot] = useState(null); // State for selected timeslot object
 
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = {
             reason,
             fees: showFeeField ? fee : 'No Fee',
-            doctorName: selectedDoctor.doctorName, // Directly use the doctor's name
-            doctorRef: selectedDoctor.doctorRef, // Include the doctor's ID for submission
+            doctorName: selectedDoctor.doctorName,
+            doctorRef: selectedDoctor.doctorRef,
+            day: selectedTimeslot?.day, // Include the selected timeslot day
+            startTime: selectedTimeslot?.startTime, // Include the selected timeslot start time
+            endTime: selectedTimeslot?.endTime, // Include the selected timeslot end time
         };
         onSubmit(data);
     };
 
     const handleInputChange = (e) => {
-        const {value} = e.target 
-        if(/^\d*$/.test(value)) {
+        const { value } = e.target;
+        if (/^\d*$/.test(value)) {
             setFee(value);
         }
-    }
+    };
+
     return (
         <form className="registration-form" onSubmit={handleSubmit}>
             <header className="header">
-            <i className="fas fa-hospital-alt"></i>
+                <i className="fas fa-hospital-alt"></i>
                 <h1>Follow-Up Form</h1>
             </header>
 
@@ -45,19 +50,53 @@ const FollowUpForm = ({ patient, selectedDoctor, showFeeField, onSubmit, formatD
                 <input
                     id="doctor"
                     type="text"
-                    value={selectedDoctor.doctorName} // Directly display the selected doctor's name
+                    value={selectedDoctor.doctorName}
                     readOnly
                 />
             </div>
             
+            {availableTimeslots.length > 0 && (
+                <div className="form-group">
+                    <label htmlFor="timeslot">Select Time Slot<span className="required">*</span></label>
+                    <select
+                        id="timeslot"
+                        value={selectedTimeslot ? `${selectedTimeslot.startTime} - ${selectedTimeslot.endTime}` : ''}
+                        onChange={(e) => {
+                            const selectedValue = e.target.value;
+                            const selectedSlot = availableTimeslots.find(slot => 
+                                `${slot.startTime} - ${slot.endTime}` === selectedValue
+                            );
+                            setSelectedTimeslot(selectedSlot); // Set the entire timeslot object
+                        }}
+                        required
+                    >
+                        <option value="" disabled>Select a time slot</option>
+                        {availableTimeslots.map((slot, index) => (
+                            <option key={index} value={`${slot.startTime} - ${slot.endTime}`}>
+                                {`${slot.startTime} - ${slot.endTime}`}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            )}
             <div className='form-group'>
                 <label htmlFor='lastConsultedDate'>Last Consulted Date</label>
-                <input type="text" id='lastConsultedDate' readOnly value={formatDate(selectedDoctor.lastConsultedDate)} />
+                <input
+                    type="text"
+                    id='lastConsultedDate'
+                    readOnly
+                    value={formatDate(selectedDoctor.lastConsultedDate)}
+                />
             </div>
 
             <div className="form-group">
                 <label htmlFor="dateOfConsultation">Date of Consultation</label>
-                <input type="text" id="dateOfConsultation" value={formatDate(new Date())} disabled />
+                <input
+                    type="text"
+                    id="dateOfConsultation"
+                    value={formatDate(new Date())}
+                    disabled
+                />
             </div>
 
             <div className="form-group">

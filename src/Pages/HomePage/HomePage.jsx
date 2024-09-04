@@ -72,46 +72,73 @@ const HomePage = () => {
     }
   };
 
-  const handleFileUpload = async (e) => {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-    reader.onload = async (event) => {
+  function convertExcelTime(excelTime) {
+    const totalMinutes = Math.round(excelTime * 24 * 60); // Convert fraction of day to total minutes
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    
+    // Format hours and minutes to "HH:MM AM/PM"
+    const period = hours >= 12 ? 'PM' : 'AM';
+    const formattedHours = hours % 12 === 0 ? 12 : hours % 12;
+    const formattedMinutes = minutes.toString().padStart(2, '0');
+
+    return `${formattedHours}:${formattedMinutes} ${period}`;
+}
+
+const handleFileUpload = async (e) => {
+  const file = e.target.files[0];
+  const reader = new FileReader();
+  reader.onload = async (event) => {
       const data = new Uint8Array(event.target.result);
       const workbook = XLSX.read(data, { type: 'array' });
       const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
       const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-  
+
       // Assuming the first row contains headers
       const headers = jsonData[0];
       const rows = jsonData.slice(1);
-  
+
       // Convert Excel rows to an array of JSON objects
       const payload = rows.map(row => {
-        return {
-          firstName: row[headers.indexOf('firstName')],
-          lastName: row[headers.indexOf('lastName')],
-          department: row[headers.indexOf('department')],
-          fees: row[headers.indexOf('fees')],
-          mobileNumber: row[headers.indexOf('mobileNumber')],
-          speciality: row[headers.indexOf('speciality')],
-        };
+          // Extracting fields from each row
+          const availableDays = row[headers.indexOf('availableDays')]; // e.g., "Monday,Wednesday,Friday"
+          const startTime = convertExcelTime(row[headers.indexOf('startTime')]); // e.g., "09:00 AM"
+          const endTime = convertExcelTime(row[headers.indexOf('endTime')]); // e.g., "05:00 PM"
+
+          // Split availableDays into an array and map to availableSlot structure
+          const availableSlot = availableDays.split(',').map(day => ({
+              day,
+              startTime,
+              endTime
+          }));
+
+          return {
+              firstName: row[headers.indexOf('firstName')],
+              lastName: row[headers.indexOf('lastName')],
+              department: row[headers.indexOf('department')],
+              fees: row[headers.indexOf('fees')],
+              mobileNumber: row[headers.indexOf('mobileNumber')],
+              speciality: row[headers.indexOf('speciality')],
+              availableSlot
+          };
       });
-  
+
       try {
-        const response = await axios.post('https://giostar.onrender.com/doctor-info/add', payload, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        toast.success('File uploaded and data sent successfully!');
-        console.log(response.data);
+          const response = await axios.post('https://giostar.onrender.com/doctor-info/add', payload, {
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+          });
+          toast.success('File uploaded and data sent successfully!');
+          console.log(response.data);
       } catch (error) {
-        toast.error('Error uploading file or sending data.');
-        console.error(error);
+          toast.error('Error uploading file or sending data.');
+          console.error(error);
       }
-    };
-    reader.readAsArrayBuffer(file);
   };
+  reader.readAsArrayBuffer(file);
+};
+
   
 
   const fetchRegistrations = async (fileFormat) => {
