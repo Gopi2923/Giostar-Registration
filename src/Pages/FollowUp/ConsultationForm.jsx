@@ -41,11 +41,13 @@ const ConsultationForm = ({ patient, doctors, onSubmit, formatDate }) => {
             return;
         }
     
+        const doctorName = `${selectedDoctorInfo.firstName} ${selectedDoctorInfo.lastName}`;
+
         const data = {
             reason,
             fees: fee,
             doctorRef: selectedDoctor,
-            doctorName: selectedDoctorInfo.firstName,
+            doctorName,
             day: selectedSlotInfo.day, // Assuming 'day' is part of the availableSlots
             startTime: selectedSlotInfo.startTime,
             endTime: selectedSlotInfo.endTime,
