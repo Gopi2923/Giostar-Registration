@@ -87,7 +87,6 @@ function FollowUp() {
                 console.error('Error fetching doctor list:', error);
                 setDoctors([]);
                 setShowDoctorList(true);
-                setErrorMessage('Failed to fetch doctors. Please try again later.');
             }
         };
     
