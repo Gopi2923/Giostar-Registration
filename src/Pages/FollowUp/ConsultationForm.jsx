@@ -77,7 +77,7 @@ const ConsultationForm = ({ patient, doctors, onSubmit, formatDate }) => {
                 <input
                     id="patientName"
                     type="text"
-                    value={patient.firstName}
+                    value={`${patient.firstName} ${patient.lastname}`}
                     readOnly
                 />
             </div>
