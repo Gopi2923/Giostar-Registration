@@ -101,16 +101,22 @@ const handleFileUpload = async (e) => {
       // Convert Excel rows to an array of JSON objects
       const payload = rows.map(row => {
           // Extracting fields from each row
-          const availableDays = row[headers.indexOf('availableDays')]; // e.g., "Monday,Wednesday,Friday"
+          const availableDays = row[headers.indexOf('availableDays')] || ''; // Ensure it's not undefined
           const startTime = convertExcelTime(row[headers.indexOf('startTime')]); // e.g., "09:00 AM"
           const endTime = convertExcelTime(row[headers.indexOf('endTime')]); // e.g., "05:00 PM"
 
-          // Split availableDays into an array and map to availableSlot structure
-          const availableSlot = availableDays.split(',').map(day => ({
-              day,
-              startTime,
-              endTime
-          }));
+       // Ensure availableDays is a non-empty string, then split and map
+     const availableSlot = availableDays
+    .split(',')
+    .filter(day => day.trim() !== '') // Filter out any empty values
+    .map(day => ({
+        day: day.trim(), // Remove any extra whitespace around day
+        startTime,
+        endTime
+    }));
+
+      console.log('Available Slot:', availableSlot); // Check if it's being populated correctly
+
 
           return {
               firstName: row[headers.indexOf('firstName')],
