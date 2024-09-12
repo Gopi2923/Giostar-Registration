@@ -163,6 +163,7 @@ function FollowUp() {
             startTime: formData.startTime,
             endTime: formData.endTime,
             dateOfConsultation: new Date().toISOString().split('T')[0],
+            patientName : selectedPatient.patientName,
         };
 
         axios.post('https://giostar.onrender.com/consultation/add', payload)

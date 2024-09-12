@@ -5,7 +5,7 @@ const PatientDetails = ({ patient, onBack, onContinue, formatDate }) => {
         <div className="patients-details">
     <h1>Patient Details</h1>
     <div className="patient-details-list">
-            <p>Name: {patient.firstName} {patient.lastname}</p>
+            <p>Name: {patient.patientName}</p>
             <p>Mobile: {patient.mobile_number}</p>
             <p>Email: {patient.email}</p>
             <p>Age: {patient.age}</p>

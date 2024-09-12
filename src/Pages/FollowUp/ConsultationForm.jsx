@@ -41,7 +41,7 @@ const ConsultationForm = ({ patient, doctors, onSubmit, formatDate }) => {
             return;
         }
     
-        const doctorName = `${selectedDoctorInfo.firstName} ${selectedDoctorInfo.lastName}`;
+        const doctorName = `${selectedDoctorInfo.doctorName}`;
 
         const data = {
             reason,
@@ -77,7 +77,7 @@ const ConsultationForm = ({ patient, doctors, onSubmit, formatDate }) => {
                 <input
                     id="patientName"
                     type="text"
-                    value={`${patient.firstName} ${patient.lastname}`}
+                    value={`${patient.patientName}`}
                     readOnly
                 />
             </div>
@@ -92,7 +92,7 @@ const ConsultationForm = ({ patient, doctors, onSubmit, formatDate }) => {
                 >
                     <option value="">Select a doctor</option>
                     {doctors.map(doc => (
-                        <option key={doc.doctorId} value={doc.doctorId}>{doc.firstName} {doc.lastName}</option>
+                        <option key={doc.doctorId} value={doc.doctorId}>{doc.doctorName}</option>
                     ))}
                 </select>
             </div>

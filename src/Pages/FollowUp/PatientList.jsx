@@ -8,7 +8,7 @@ const PatientList = ({ patients, selectPatient }) => (
     <ul>
       {patients.data?.map(patient => (
         <li key={patient._id} onClick={() => selectPatient(patient)}>
-          <div className="patient-name">Patient Name: {`${patient.firstName} ${patient.lastname}`}</div>
+          <div className="patient-name">Patient Name: {`${patient.patientName}`}</div>
           <FontAwesomeIcon icon={faArrowRight} beat size="2xl" style={{ color: "#B197FC" }} />
         </li>
       ))}
