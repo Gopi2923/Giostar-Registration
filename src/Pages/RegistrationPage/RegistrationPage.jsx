@@ -159,7 +159,7 @@ const formatDateForPayload = (date) => {
                   <h1>Payment Confirmed</h1>
                   <div className="patient-details">
                     {responseData.patientId && <p><strong>Patient ID:</strong> {responseData.patientId}</p>}
-                    {responseData.firstName && <p><strong>Name:</strong> {responseData.firstName} {responseData.middleName || ''} {responseData.lastname || ''}</p>}
+                    {responseData.firstName && <p><strong>Name:</strong> {responseData.patientName}</p>}
                     {responseData.age && <p><strong>Age:</strong> {responseData.age}</p>}
                     {responseData.gender && <p><strong>Gender:</strong> {responseData.gender}</p>}
                     {responseData.email && <p><strong>Email:</strong> {responseData.email}</p>}

@@ -40,7 +40,7 @@ const FollowUpForm = ({ patient, selectedDoctor, showFeeField, onSubmit, formatD
                 <input
                     id="patientName"
                     type="text"
-                    value={`${patient.firstName} ${patient.lastname}`}
+                    value={`${patient.patientName}`}
                     readOnly
                 />
             </div>
