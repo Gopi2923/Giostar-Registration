@@ -6,7 +6,7 @@ import './RegistrationPage.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleCheck, faCircleLeft} from '@fortawesome/free-solid-svg-icons';
 import { TailSpin } from 'react-loader-spinner';
-
+import { ToastContainer, toast } from 'react-toastify';
 
 const RegistrationPage = () => {
 
@@ -98,19 +98,46 @@ const formatDateForPayload = (date) => {
     }
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setIsLoading(true);
+  //   try {
+  //     await new Promise((resonve) => setTimeout(resonve, 1000));
+  //      // Update the isSubmitted state to show the QR code
+  //     setIsSubmitted(true);
+  //   } catch(error){
+  //     console.log('Error', error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+
     try {
-      await new Promise((resonve) => setTimeout(resonve, 1000));
-       // Update the isSubmitted state to show the QR code
-      setIsSubmitted(true);
-    } catch(error){
+      // Check if the patient already exists
+      const response = await axios.post('https://giostar.onrender.com/registration/isPatientExist', {
+        ...formData,
+        dateOfRegistration: formatDateForPayload(today), // Send as yyyy-mm-dd
+      });
+      console.log(response);
+      if (response.data) {
+        toast.error('Patient already exists');
+        setIsLoading(false); // Stop loading state
+      } else {
+        // Proceed with the existing form submission behavior
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        setIsSubmitted(true);
+        setIsLoading(false); // Stop loading state
+      }
+    } catch (error) {
       console.log('Error', error);
-    } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Stop loading state in case of error
     }
   };
+
 
   const handlePaymentConfirm = async () => {
     setIsLoading(true);
@@ -266,6 +293,7 @@ const formatDateForPayload = (date) => {
           </div>
         </div>
       )}
+      <ToastContainer />
     </div>
   );
 };
